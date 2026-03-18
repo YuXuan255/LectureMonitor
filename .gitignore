@@ -1,0 +1,28 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+.venv/
+venv/
+
+# Local config (contains secrets)
+config.json
+
+# Runtime data
+logs/*
+!logs/.gitkeep
+data/*
+!data/.gitkeep
+
+# Browser persistent profile (login state)
+data/browser_profile/
+
+# Local debug artifacts
+target.html
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store

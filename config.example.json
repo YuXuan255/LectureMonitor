@@ -1,0 +1,26 @@
+{
+  "url": "https://v.ruc.edu.cn/campus#/search",
+  "check_interval_minutes": 10,
+  "monitor_start_hour": 8,
+  "monitor_end_hour": 22,
+  "browser": {
+    "headless": false,
+    "slow_mo_ms": 100,
+    "profile_dir": "data/browser_profile"
+  },
+  "timeouts": {
+    "page_load_ms": 30000,
+    "ui_wait_ms": 8000,
+    "login_check_delay_ms": 3500,
+    "login_recover_retry_count": 4,
+    "login_recover_retry_wait_ms": 2000
+  },
+  "email": {
+    "smtp_host": "smtp.example.com",
+    "smtp_port": 465,
+    "sender": "your_email@example.com",
+    "password": "your_app_password",
+    "receiver": "your_email@example.com",
+    "use_ssl": true
+  }
+}
