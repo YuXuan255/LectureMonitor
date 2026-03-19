@@ -1,7 +1,7 @@
 import logging
 import re
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Callable, Optional
 from urllib.parse import urljoin
 
 from playwright.sync_api import (
@@ -48,14 +48,22 @@ class LectureMonitor:
         self._context: Optional[BrowserContext] = None
         self._page: Optional[Page] = None
 
-    def run_once(self, allow_manual_login: bool = False) -> list[Activity]:
+    def run_once(
+        self,
+        allow_manual_login: bool = False,
+        on_login_invalid: Optional[Callable[[str], None]] = None,
+    ) -> list[Activity]:
         """执行一次完整流程：进入页面、筛选、查询、解析结果。"""
         page = self._ensure_browser()
         logging.info("打开页面: %s", self.url)
         page.goto(self.url, wait_until="domcontentloaded", timeout=self.page_load_ms)
         self._wait_before_login_check(page)
 
-        self._ensure_login(page, allow_manual_login=allow_manual_login)
+        self._ensure_login(
+            page,
+            allow_manual_login=allow_manual_login,
+            on_login_invalid=on_login_invalid,
+        )
         self._apply_filters(page)
         self._click_query(page)
 
@@ -104,7 +112,12 @@ class LectureMonitor:
 
         return self._page
 
-    def _ensure_login(self, page: Page, allow_manual_login: bool) -> None:
+    def _ensure_login(
+        self,
+        page: Page,
+        allow_manual_login: bool,
+        on_login_invalid: Optional[Callable[[str], None]] = None,
+    ) -> None:
         """检测登录状态；失效时抛出登录异常或进入手动恢复流程。"""
         if self._has_search_filters(page):
             logging.info("检测到筛选区域，登录状态可用。")
@@ -125,9 +138,16 @@ class LectureMonitor:
             logging.info("重新打开目标页后检测到筛选区域，登录状态可用。")
             return
 
+        reason = "未检测到筛选区域，当前登录状态可能失效。"
         logging.warning("暂未检测到筛选区域，可能尚未登录或登录失效。")
+        if on_login_invalid is not None:
+            try:
+                on_login_invalid(reason)
+            except Exception as exc:
+                logging.exception("登录失效回调执行失败: %s", exc)
+
         if not allow_manual_login:
-            raise LoginRequiredError("未检测到筛选区域，当前登录状态可能失效。")
+            raise LoginRequiredError(reason)
 
         input("请在打开的浏览器中手动登录，然后回到终端按回车继续... ")
         if self._recover_to_target_search_page(page):

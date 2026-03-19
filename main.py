@@ -109,22 +109,38 @@ def run_single_cycle(
 ) -> bool:
     """执行一轮检测，返回更新后的登录失效提醒状态。"""
     logging.info("开始新一轮检查。")
+    login_alert_sent_next = login_alert_sent
+    login_alert_notified_this_cycle = False
+
+    def handle_login_invalid(reason: str) -> None:
+        nonlocal login_alert_sent_next, login_alert_notified_this_cycle
+        logging.warning("检测到登录失效: %s", reason)
+        if login_alert_sent_next:
+            logging.info("登录失效提醒邮件已发送过，本轮不重复发送。")
+            login_alert_notified_this_cycle = True
+            return
+
+        sent = notifier.notify_login_invalid(reason)
+        if sent:
+            login_alert_sent_next = True
+        else:
+            logging.warning("登录失效提醒邮件发送失败，本轮结束后会继续重试。")
+        login_alert_notified_this_cycle = True
 
     try:
-        activities = monitor.run_once(allow_manual_login=allow_manual_login)
+        activities = monitor.run_once(
+            allow_manual_login=allow_manual_login,
+            on_login_invalid=handle_login_invalid,
+        )
 
     except LoginRequiredError as exc:
-        logging.warning("检测到登录失效: %s", exc)
-        if not login_alert_sent:
-            notifier.notify_login_invalid(str(exc))
-            return True
-
-        logging.info("登录失效提醒邮件已发送过，本轮不重复发送。")
-        return True
+        if not login_alert_notified_this_cycle:
+            handle_login_invalid(str(exc))
+        return login_alert_sent_next
 
     except Exception as exc:
         logging.exception("本轮检查发生异常: %s", exc)
-        return login_alert_sent
+        return login_alert_sent_next
 
     ordinary_activities, new_activities = storage.classify_and_update(activities)
 
@@ -140,6 +156,7 @@ def run_single_cycle(
     else:
         logging.info("本次没有新活动，不触发邮件通知。")
 
+    # 本轮成功跑通，登录失效提醒状态重置，供未来真正失效时再次提醒
     return False
 
 
