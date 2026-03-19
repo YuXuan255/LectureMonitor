@@ -71,13 +71,7 @@ playwright install chromium
 cp config.example.json config.json
 ```
 
-4. 运行
-
-```bash
-python main.py --config config.json
-```
-
-## 配置说明（config.json）
+配置内容：
 
 ```json
 {
@@ -120,7 +114,7 @@ python main.py --config config.json
 - `email.receivers`：收件人列表（支持多个）
 - `browser.headless`: 设置为`true`可以不弹出浏览器窗口，请确保您已经登录并记住登录状态后再设置。
 
-关于smtp服务器配置，可自行搜索您邮箱对应的配置，一个qq邮箱的示例为：
+**在运行前请您先修改`email`的配置内容**，关于smtp服务器配置，可自行搜索您邮箱对应的配置，一个qq邮箱的示例为：
 
 ```json
 "email": {
@@ -133,6 +127,18 @@ python main.py --config config.json
   ],
   "use_ssl": true
 }
+```
+
+**安全提示：**
+
+- `config.json` 含邮箱敏感信息，请注意个人信息保护
+- 邮箱 `password` 应使用授权码，不要使用登录密码。
+- 如果敏感信息曾泄露，建议立即更换授权码。
+
+4. 运行
+
+```bash
+python main.py --config config.json
 ```
 
 ## 运行参数
@@ -176,12 +182,6 @@ python main.py --config config.json --no-manual-login
   - `timeouts.login_check_delay_ms`
   - `timeouts.login_recover_retry_count`
   - `timeouts.login_recover_retry_wait_ms`
-
-## 安全提示（重要）
-
-- `config.json` 含邮箱敏感信息，不应提交到 GitHub（已在 `.gitignore` 忽略）。
-- 邮箱 `password` 应使用授权码，不要使用登录密码。
-- 如果敏感信息曾泄露，建议立即更换授权码。
 
 ## 行为边界
 
