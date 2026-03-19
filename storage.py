@@ -79,6 +79,7 @@ class ActivityStorage:
             "title": activity.title,
             "status": activity.status,
             "time_text": activity.time_text,
+            "detail_url": activity.detail_url,
             "first_seen_at": first_seen_at,
             "last_seen_at": seen_at,
         }

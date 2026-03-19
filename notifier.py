@@ -39,6 +39,10 @@ class EmailNotifier:
             body_lines.append(f"{index}. 标题：{activity.title}")
             body_lines.append(f"   状态：{activity.status}")
             body_lines.append(f"   时间：{activity.time_text}")
+            if activity.detail_url:
+                body_lines.append(f"   链接：{activity.detail_url}")
+            else:
+                body_lines.append("   链接：未解析到活动直达链接")
             body_lines.append("")
 
         success = self._send_email(subject, "\n".join(body_lines))

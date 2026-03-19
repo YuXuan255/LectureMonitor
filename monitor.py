@@ -2,6 +2,7 @@ import logging
 import re
 from pathlib import Path
 from typing import Any, Optional
+from urllib.parse import urljoin
 
 from playwright.sync_api import Locator, Page, TimeoutError as PlaywrightTimeoutError, sync_playwright
 
@@ -18,6 +19,7 @@ class LectureMonitor:
 
     def __init__(self, config: dict[str, Any]):
         self.url = config["url"]
+        self.url_without_hash = self.url.split("#", 1)[0]
 
         browser_config = config.get("browser", {})
         self.headless = bool(browser_config.get("headless", False))
@@ -70,6 +72,14 @@ class LectureMonitor:
         self._wait_before_login_check(page)
         if self._has_search_filters(page):
             logging.info("重试后检测到筛选区域，登录状态可用。")
+            return
+
+        # 第一次仍未命中时，先主动再跳一次目标页面，处理被统一门户重定向的情况
+        logging.info("仍未检测到筛选区域，尝试主动重新打开目标检索页。")
+        page.goto(self.url, wait_until="domcontentloaded", timeout=self.page_load_ms)
+        self._wait_before_login_check(page)
+        if self._has_search_filters(page):
+            logging.info("重新打开目标页后检测到筛选区域，登录状态可用。")
             return
 
         logging.warning("暂未检测到筛选区域，可能尚未登录或登录失效。")
@@ -293,7 +303,8 @@ class LectureMonitor:
 
         status = self._extract_status(row_text)
         time_text = self._extract_time(row_text)
-        return Activity(title=title, status=status, time_text=time_text)
+        detail_url = self._extract_detail_url(row)
+        return Activity(title=title, status=status, time_text=time_text, detail_url=detail_url)
 
     def _extract_title(self, row: Locator, row_text: str) -> str:
         """优先从常见标题节点提取；失败再从整行文本推断。"""
@@ -345,6 +356,38 @@ class LectureMonitor:
             return locator.inner_text(timeout=800).strip()
         except PlaywrightTimeoutError:
             return ""
+
+    def _extract_detail_url(self, row: Locator) -> str:
+        """提取活动详情链接并转换为可直达 URL。"""
+        anchors = row.locator("a[href]")
+        count = anchors.count()
+        if count == 0:
+            return ""
+
+        # 优先选择更像详情页的链接
+        for idx in range(min(count, 8)):
+            href = anchors.nth(idx).get_attribute("href")
+            normalized = self._normalize_url(href)
+            if "/activity/" in normalized or "partakedetail" in normalized:
+                return normalized
+
+        first_href = anchors.first.get_attribute("href")
+        return self._normalize_url(first_href)
+
+    def _normalize_url(self, href: Optional[str]) -> str:
+        """将页面中的相对链接转为完整可访问链接。"""
+        if href is None:
+            return ""
+
+        clean_href = href.strip()
+        if not clean_href:
+            return ""
+        if clean_href.lower().startswith("javascript:"):
+            return ""
+        if clean_href.startswith("#"):
+            return f"{self.url_without_hash}{clean_href}"
+
+        return urljoin(self.url, clean_href)
 
     def _wait_before_login_check(self, page: Page) -> None:
         """登录检测前等待页面稳定，降低误判率。"""

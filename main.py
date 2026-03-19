@@ -68,6 +68,8 @@ def print_activity_group(group_name: str, activities: list[Activity]) -> None:
         print(f"{index}. 标题: {activity.title}")
         print(f"   状态: {activity.status}")
         print(f"   时间: {activity.time_text}")
+        if activity.detail_url:
+            print(f"   链接: {activity.detail_url}")
 
 
 def get_runtime_config(config: dict) -> tuple[int, int, int]:
