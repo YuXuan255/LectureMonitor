@@ -83,7 +83,6 @@ class EmailNotifier:
             "smtp_port",
             "sender",
             "password",
-            "receiver",
         ]
 
         missing_fields: list[str] = []
@@ -92,18 +91,48 @@ class EmailNotifier:
             if value is None or str(value).strip() == "":
                 missing_fields.append(field)
 
+        if not self._get_receivers():
+            missing_fields.append("receivers")
+
         return len(missing_fields) == 0, missing_fields
 
     def _build_message(self, subject: str, body: str) -> EmailMessage:
         sender = str(self.email_config.get("sender"))
-        receiver = str(self.email_config.get("receiver"))
+        receivers = self._get_receivers()
 
         message = EmailMessage()
         message["From"] = sender
-        message["To"] = receiver
+        message["To"] = ", ".join(receivers)
         message["Subject"] = subject
         message.set_content(body)
         return message
+
+    def _get_receivers(self) -> list[str]:
+        """读取收件人列表，仅支持 receivers。"""
+        raw_receivers = self.email_config.get("receivers")
+        candidates: list[str] = []
+
+        if isinstance(raw_receivers, list):
+            for item in raw_receivers:
+                text = str(item).strip()
+                if text:
+                    candidates.append(text)
+        elif isinstance(raw_receivers, str):
+            for part in raw_receivers.replace(";", ",").split(","):
+                text = part.strip()
+                if text:
+                    candidates.append(text)
+
+        # 去重并保持顺序
+        deduped: list[str] = []
+        seen: set[str] = set()
+        for email in candidates:
+            key = email.lower()
+            if key in seen:
+                continue
+            seen.add(key)
+            deduped.append(email)
+        return deduped
 
     def _send_email(self, subject: str, body: str) -> bool:
         message = self._build_message(subject, body)

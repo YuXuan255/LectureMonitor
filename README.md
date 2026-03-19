@@ -102,7 +102,10 @@ python main.py --config config.json
     "smtp_port": 465,
     "sender": "your_email@example.com",
     "password": "your_app_password",
-    "receiver": "your_email@example.com",
+    "receivers": [
+      "your_email@example.com",
+      "another_email@example.com"
+    ],
     "use_ssl": true
   }
 }
@@ -114,6 +117,7 @@ python main.py --config config.json
 - `timeouts.login_check_delay_ms`：登录检测前额外等待，避免误判
 - `timeouts.login_recover_retry_count`：登录后自动回跳目标页重试次数
 - `timeouts.login_recover_retry_wait_ms`：重试间隔
+- `email.receivers`：收件人列表（支持多个）
 
 关于smtp服务器配置，可自行google您邮箱对应的配置，一个qq邮箱的示例为：
 
@@ -123,7 +127,9 @@ python main.py --config config.json
   "smtp_port": 465,
   "sender": "your_email@qq.com",
   "password": "your_app_password",
-  "receiver": "your_email@qq.com",
+  "receivers": [
+    "your_email@qq.com"
+  ],
   "use_ssl": true
 }
 ```

@@ -20,7 +20,10 @@
     "smtp_port": 465,
     "sender": "your_email@example.com",
     "password": "your_app_password",
-    "receiver": "your_email@example.com",
+    "receivers": [
+      "your_email@example.com",
+      "another_email@example.com"
+    ],
     "use_ssl": true
   }
 }
