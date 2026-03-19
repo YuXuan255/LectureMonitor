@@ -118,8 +118,9 @@ python main.py --config config.json
 - `timeouts.login_recover_retry_count`：登录后自动回跳目标页重试次数
 - `timeouts.login_recover_retry_wait_ms`：重试间隔
 - `email.receivers`：收件人列表（支持多个）
+- `browser.headless`: 设置为`true`可以不弹出浏览器窗口，请确保您已经登录并记住登录状态后再设置。
 
-关于smtp服务器配置，可自行google您邮箱对应的配置，一个qq邮箱的示例为：
+关于smtp服务器配置，可自行搜索您邮箱对应的配置，一个qq邮箱的示例为：
 
 ```json
 "email": {
