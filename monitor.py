@@ -4,7 +4,14 @@ from pathlib import Path
 from typing import Any, Optional
 from urllib.parse import urljoin
 
-from playwright.sync_api import Locator, Page, TimeoutError as PlaywrightTimeoutError, sync_playwright
+from playwright.sync_api import (
+    BrowserContext,
+    Locator,
+    Page,
+    Playwright,
+    TimeoutError as PlaywrightTimeoutError,
+    sync_playwright,
+)
 
 from models import Activity
 import page_selectors as selectors
@@ -36,30 +43,66 @@ class LectureMonitor:
         self.login_recover_retry_wait_ms = int(timeout_config.get("login_recover_retry_wait_ms", 2000))
 
         self.profile_dir.mkdir(parents=True, exist_ok=True)
+        self._playwright_manager = None
+        self._playwright: Optional[Playwright] = None
+        self._context: Optional[BrowserContext] = None
+        self._page: Optional[Page] = None
 
     def run_once(self, allow_manual_login: bool = False) -> list[Activity]:
         """执行一次完整流程：进入页面、筛选、查询、解析结果。"""
-        with sync_playwright() as playwright:
-            context = playwright.chromium.launch_persistent_context(
-                user_data_dir=str(self.profile_dir),
-                headless=self.headless,
-                slow_mo=self.slow_mo_ms,
-            )
+        page = self._ensure_browser()
+        logging.info("打开页面: %s", self.url)
+        page.goto(self.url, wait_until="domcontentloaded", timeout=self.page_load_ms)
+        self._wait_before_login_check(page)
 
-            page = context.new_page()
-            logging.info("打开页面: %s", self.url)
-            page.goto(self.url, wait_until="domcontentloaded", timeout=self.page_load_ms)
-            self._wait_before_login_check(page)
+        self._ensure_login(page, allow_manual_login=allow_manual_login)
+        self._apply_filters(page)
+        self._click_query(page)
 
-            self._ensure_login(page, allow_manual_login=allow_manual_login)
-            self._apply_filters(page)
-            self._click_query(page)
+        activities = self._parse_activities(page)
+        logging.info("本次解析到 %d 条活动", len(activities))
+        return activities
 
-            activities = self._parse_activities(page)
-            logging.info("本次解析到 %d 条活动", len(activities))
+    def close(self) -> None:
+        """关闭长期复用的浏览器资源。"""
+        if self._context is not None:
+            try:
+                self._context.close()
+            except Exception:
+                pass
+            self._context = None
+            self._page = None
 
-            context.close()
-            return activities
+        if self._playwright_manager is not None:
+            try:
+                self._playwright_manager.stop()
+            except Exception:
+                pass
+            self._playwright_manager = None
+            self._playwright = None
+
+    def _ensure_browser(self) -> Page:
+        """确保浏览器上下文已启动并复用同一页面。"""
+        if self._page is not None and not self._page.is_closed():
+            return self._page
+
+        # 兜底清理异常残留资源
+        self.close()
+
+        self._playwright_manager = sync_playwright()
+        self._playwright = self._playwright_manager.start()
+        self._context = self._playwright.chromium.launch_persistent_context(
+            user_data_dir=str(self.profile_dir),
+            headless=self.headless,
+            slow_mo=self.slow_mo_ms,
+        )
+
+        if self._context.pages:
+            self._page = self._context.pages[0]
+        else:
+            self._page = self._context.new_page()
+
+        return self._page
 
     def _ensure_login(self, page: Page, allow_manual_login: bool) -> None:
         """检测登录状态；失效时抛出登录异常或进入手动恢复流程。"""

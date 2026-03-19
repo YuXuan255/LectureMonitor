@@ -146,6 +146,7 @@ def run_single_cycle(
 def main() -> None:
     args = parse_args()
     setup_logging()
+    monitor: LectureMonitor | None = None
 
     try:
         config = load_config(Path(args.config))
@@ -192,6 +193,9 @@ def main() -> None:
     except Exception as exc:
         logging.exception("运行失败: %s", exc)
         raise
+    finally:
+        if monitor is not None:
+            monitor.close()
 
 
 if __name__ == "__main__":
