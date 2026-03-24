@@ -14,6 +14,16 @@ FILTER_CONFIG = [
 
 QUERY_BUTTON_TEXT = "查询"
 
+# 长时间挂起后可能出现的网络异常提示弹窗
+NETWORK_ISSUE_KEYWORDS = [
+    "网络出错误了...刷新试试~~",
+    "网络出错误了",
+]
+NETWORK_ISSUE_CONFIRM_TEXTS = [
+    "确认",
+    "确定",
+]
+
 # campus 页面当前结构（来自 target.html）
 CAMPUS_FILTER_BLOCK_SELECTOR = "div.col-xs-6.col-sm-6.col-md-3"
 CAMPUS_FILTER_LABEL_SELECTOR = "p.campus-search-p"

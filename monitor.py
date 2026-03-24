@@ -64,7 +64,11 @@ class LectureMonitor:
             allow_manual_login=allow_manual_login,
             on_login_invalid=on_login_invalid,
         )
-        self._apply_filters(page)
+        self._apply_filters(
+            page,
+            allow_manual_login=allow_manual_login,
+            on_login_invalid=on_login_invalid,
+        )
         self._click_query(page)
 
         activities = self._parse_activities(page)
@@ -167,17 +171,124 @@ class LectureMonitor:
 
         return hit_count >= 2
 
-    def _apply_filters(self, page: Page) -> None:
-        """按规格依次设置四个筛选项。"""
+    def _apply_filters(
+        self,
+        page: Page,
+        allow_manual_login: bool,
+        on_login_invalid: Optional[Callable[[str], None]] = None,
+    ) -> None:
+        """按规格设置四个筛选项，首次失败时自动刷新目标页再重试一次。"""
+        failed_item = self._apply_filters_once(page)
+        if failed_item is None:
+            return
+
+        first_label, first_option = failed_item
+        handled_popup = self._recover_from_network_issue_popup(
+            page,
+            allow_manual_login=allow_manual_login,
+            on_login_invalid=on_login_invalid,
+        )
+        if handled_popup:
+            failed_item = self._apply_filters_once(page)
+            if failed_item is None:
+                logging.info("处理网络异常弹窗后，筛选设置成功。")
+                return
+            first_label, first_option = failed_item
+
+        logging.warning(
+            "首次筛选失败：%s -> %s，尝试刷新目标页并重试一次。",
+            first_label,
+            first_option,
+        )
+        page.goto(self.url, wait_until="domcontentloaded", timeout=self.page_load_ms)
+        self._wait_before_login_check(page)
+        self._ensure_login(
+            page,
+            allow_manual_login=allow_manual_login,
+            on_login_invalid=on_login_invalid,
+        )
+
+        failed_item = self._apply_filters_once(page)
+        if failed_item is None:
+            logging.info("刷新目标页后，筛选设置成功。")
+            return
+
+        label, option = failed_item
+        self._print_filter_debug_tips(label, option)
+        raise RuntimeError(f"筛选失败：{label} -> {option}")
+
+    def _recover_from_network_issue_popup(
+        self,
+        page: Page,
+        allow_manual_login: bool,
+        on_login_invalid: Optional[Callable[[str], None]] = None,
+    ) -> bool:
+        """检测并处理“网络出现问题”弹窗。"""
+        has_network_issue = False
+        for keyword in selectors.NETWORK_ISSUE_KEYWORDS:
+            if page.get_by_text(keyword, exact=False).count() > 0:
+                has_network_issue = True
+                break
+
+        if not has_network_issue:
+            return False
+
+        logging.warning("检测到网络异常提示弹窗，尝试点击确认并等待页面恢复。")
+        clicked = False
+        for text in selectors.NETWORK_ISSUE_CONFIRM_TEXTS:
+            if self._try_click_confirm_button(page, text):
+                clicked = True
+                break
+
+        if not clicked:
+            logging.warning("检测到网络异常提示，但未找到可点击的确认按钮。")
+            return False
+
+        try:
+            page.wait_for_load_state("domcontentloaded", timeout=min(self.page_load_ms, 10000))
+        except PlaywrightTimeoutError:
+            pass
+
+        self._wait_before_login_check(page)
+        self._ensure_login(
+            page,
+            allow_manual_login=allow_manual_login,
+            on_login_invalid=on_login_invalid,
+        )
+        return True
+
+    def _try_click_confirm_button(self, page: Page, button_text: str) -> bool:
+        """点击弹窗确认按钮。"""
+        try:
+            button_by_role = page.get_by_role("button", name=button_text)
+            if button_by_role.count() > 0:
+                button_by_role.first.click(timeout=self.ui_wait_ms)
+                return True
+        except PlaywrightTimeoutError:
+            pass
+
+        try:
+            button_by_text = page.get_by_text(button_text, exact=True)
+            if button_by_text.count() > 0:
+                button_by_text.first.click(timeout=self.ui_wait_ms)
+                return True
+        except PlaywrightTimeoutError:
+            pass
+
+        return False
+
+    def _apply_filters_once(self, page: Page) -> Optional[tuple[str, str]]:
+        """执行一轮筛选设置，失败时返回失败项。"""
         for item in selectors.FILTER_CONFIG:
             label = item["label"]
             option = item["option"]
             logging.info("设置筛选：%s -> %s", label, option)
             success = self._set_single_filter(page, label, option)
             if not success:
-                self._print_filter_debug_tips(label, option)
-                raise RuntimeError(f"筛选失败：{label} -> {option}")
+                return label, option
             page.wait_for_timeout(250)
+
+        return None
 
     def _set_single_filter(self, page: Page, label: str, option: str) -> bool:
         """设置单个筛选项，使用多种稳健定位策略。"""
