@@ -1,0 +1,2164 @@
+monitor.py
+  7daa3a00466e4ce7 67-71,174-250,252-281,288,291
+page_selectors.py
+  7daa3a00466e4ce7 17-18,21-26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.17",
+  "base_commit_sha": "a272588b233a88cd65a15d94d65e3aef3c29bfe2",
+  "prompts": {
+    "7daa3a00466e4ce7": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019cfb8f-4144-7a52-ba13-f6571c7369d7",
+        "model": "gpt-5.3-codex"
+      },
+      "human_author": "Yuxuan Du <duyuxuan@ruc.edu.cn>",
+      "messages": [
+        {
+          "type": "user",
+          "text": "# AGENTS.md instructions for /home/yuxuan/Desktop/study/2th/LectureMonitor\n\n<INSTRUCTIONS>\n## Skills\nA skill is a set of local instructions to follow that is stored in a `SKILL.md` file. Below is the list of skills that can be used. Each entry includes a name, description, and file path so you can open the source for full instructions when using a specific skill.\n### Available skills\n- openai-docs: Use when the user asks how to build with OpenAI products or APIs and needs up-to-date official documentation with citations, help choosing the latest model for a use case, or explicit GPT-5.4 upgrade and prompt-upgrade guidance; prioritize OpenAI docs MCP tools, use bundled references only as helper context, and restrict any fallback browsing to official OpenAI domains. (file: /home/yuxuan/.codex/skills/.system/openai-docs/SKILL.md)\n- skill-creator: Guide for creating effective skills. This skill should be used when users want to create a new skill (or update an existing skill) that extends Codex's capabilities with specialized knowledge, workflows, or tool integrations. (file: /home/yuxuan/.codex/skills/.system/skill-creator/SKILL.md)\n- skill-installer: Install Codex skills into $CODEX_HOME/skills from a curated list or a GitHub repo path. Use when a user asks to list installable skills, install a curated skill, or install a skill from another repo (including private repos). (file: /home/yuxuan/.codex/skills/.system/skill-installer/SKILL.md)\n### How to use skills\n- Discovery: The list above is the skills available in this session (name + description + file path). Skill bodies live on disk at the listed paths.\n- Trigger rules: If the user names a skill (with `$SkillName` or plain text) OR the task clearly matches a skill's description shown above, you must use that skill for that turn. Multiple mentions mean use them all. Do not carry skills across turns unless re-mentioned.\n- Missing/blocked: If a named skill isn't in the list or the path can't be read, say so briefly and continue with the best fallback.\n- How to use a skill (progressive disclosure):\n  1) After deciding to use a skill, open its `SKILL.md`. Read only enough to follow the workflow.\n  2) When `SKILL.md` references relative paths (e.g., `scripts/foo.py`), resolve them relative to the skill directory listed above first, and only consider other paths if needed.\n  3) If `SKILL.md` points to extra folders such as `references/`, load only the specific files needed for the request; don't bulk-load everything.\n  4) If `scripts/` exist, prefer running or patching them instead of retyping large code blocks.\n  5) If `assets/` or templates exist, reuse them instead of recreating from scratch.\n- Coordination and sequencing:\n  - If multiple skills apply, choose the minimal set that covers the request and state the order you'll use them.\n  - Announce which skill(s) you're using and why (one short line). If you skip an obvious skill, say why.\n- Context hygiene:\n  - Keep context small: summarize long sections instead of pasting them; only load extra files when needed.\n  - Avoid deep reference-chasing: prefer opening only files directly linked from `SKILL.md` unless you're blocked.\n  - When variants exist (frameworks, providers, domains), pick only the relevant reference file(s) and note that choice.\n- Safety and fallback: If a skill can't be applied cleanly (missing files, unclear instructions), state the issue, pick the next-best approach, and continue.\n</INSTRUCTIONS>\n<environment_context>\n  <cwd>/home/yuxuan/Desktop/study/2th/LectureMonitor</cwd>\n  <shell>zsh</shell>\n  <current_date>2026-03-17</current_date>\n  <timezone>Asia/Shanghai</timezone>\n</environment_context>",
+          "timestamp": "2026-03-17T11:31:14.869Z"
+        },
+        {
+          "type": "user",
+          "text": "请读取当前工作区中的 PROJ********C.md。\n\n严格按照其中的“第一阶段：最小可运行版本”来实现，不要做第二、第三、第四阶段的内容。\n\n请按以下顺序输出：\n1. 第一阶段开发计划\n2. 将创建哪些文件\n3. 每个文件的代码\n4. 运行步骤\n5. 目前哪些地方可能需要我手动调试页面元素\n\n要求：\n- 代码清晰，适合初学者阅读\n- 不要自动处理验证码\n- 不要自动报名\n- 对于页面元素定位，优先使用稳健方法，不要写脆弱的超长 XPath",
+          "timestamp": "2026-03-17T11:31:14.869Z"
+        },
+        {
+          "type": "assistant",
+          "text": "我会先读取 `PROJ********C.md`，提取“第一阶段：最小可运行版本”的具体范围和约束，然后只实现这一阶段需要的代码与文件。接下来我会先检查当前工作区结构并打开规格文档。",
+          "timestamp": "2026-03-17T11:31:20.725Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "pwd && ls -la"
+          },
+          "timestamp": "2026-03-17T11:31:20.726Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "rg --files"
+          },
+          "timestamp": "2026-03-17T11:31:20.727Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "cat PROJECT_SPEC.md"
+          },
+          "timestamp": "2026-03-17T11:31:28.244Z"
+        },
+        {
+          "type": "assistant",
+          "text": "我已经提取了第一阶段范围，接下来只做“可跑通页面流程”的最小实现：搭建基础目录与依赖、实现持久化登录+筛选+查询+列表打印、补充初学者可读的 README 与调试说明，不会加入邮件、历史比对或定时调度逻辑。现在我先更新执行计划并开始创建文件。",
+          "timestamp": "2026-03-17T11:31:46.120Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "update_plan",
+          "input": {
+            "explanation": "仅实现第一阶段最小可运行版本，不包含第二至第四阶段功能。",
+            "plan": [
+              {
+                "status": "in_progress",
+                "step": "梳理第一阶段需求并设计最小文件结构"
+              },
+              {
+                "status": "pending",
+                "step": "实现 Playwright 持久化登录、筛选查询与活动解析输出"
+              },
+              {
+                "status": "pending",
+                "step": "补充配置模板、依赖清单与 README 运行调试说明"
+              },
+              {
+                "status": "pending",
+                "step": "自检代码与运行步骤，整理给用户的分项输出"
+              }
+            ]
+          },
+          "timestamp": "2026-03-17T11:31:48.686Z"
+        },
+        {
+          "type": "assistant",
+          "text": "我将开始落地第一阶段代码：新建 `main.py / monitor.py / models.py / selectors.py / config.example.json / requirements.txt / README.md`，并把核心逻辑限制在“持久化登录 + 筛选 + 查询 + 打印活动列表”。接下来我会先写代码，再做一次快速静态自检。",
+          "timestamp": "2026-03-17T11:32:30.466Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "mkdir -p logs data/browser_profile"
+          },
+          "timestamp": "2026-03-17T11:32:30.467Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "cat > requirements.txt <<'EOF'\nplaywright>=1.43.0\nEOF"
+          },
+          "timestamp": "2026-03-17T11:32:30.467Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "cat > config.example.json <<'EOF'\n{\n  \"url\": \"https://v.ruc.edu.cn/campus#/search\",\n  \"browser\": {\n    \"headless\": false,\n    \"slow_mo_ms\": 100,\n    \"profile_dir\": \"data/browser_profile\"\n  },\n  \"timeouts\": {\n    \"page_load_ms\": 30000,\n    \"ui_wait_ms\": 8000\n  }\n}\nEOF"
+          },
+          "timestamp": "2026-03-17T11:32:30.468Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "cat > models.py <<'EOF'\nfrom dataclasses import dataclass\n\n\n@dataclass\nclass Activity:\n    \"\"\"单条活动信息（第一阶段只保留展示所需字段）。\"\"\"\n\n    title: str\n    status: str\n    time_text: str\nEOF"
+          },
+          "timestamp": "2026-03-17T11:33:24.183Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "cat > selectors.py <<'EOF'\n\"\"\"页面元素选择器与筛选配置。\n\n说明：\n1. 优先使用语义化定位（role/text）。\n2. 这里保留少量可调整的 CSS 选择器，方便你手动调试。\n\"\"\"\n\nFILTER_CONFIG = [\n    {\"label\": \"活动大类\", \"option\": \"素质拓展认证\"},\n    {\"label\": \"活动小类\", \"option\": \"形势与政策\"},\n    {\"label\": \"小类子类\", \"option\": \"形势与政策讲座\"},\n    {\"label\": \"活动状态\", \"option\": \"未开始\"},\n]\n\nQUERY_BUTTON_TEXT = \"查询\"\n\n# 常见 UI 库中的“筛选项容器”，用于在 label 附近查找下拉框触发器\nFORM_ITEM_SELECTORS = [\n    \".ant-form-item\",\n    \".el-form-item\",\n    \".ivu-form-item\",\n    \".form-item\",\n    \".search-item\",\n]\n\n# 常见“下拉框触发器”选择器\nDROPDOWN_TRIGGER_SELECTORS = [\n    \"[role='combobox']\",\n    \".ant-select-selector\",\n    \".el-select\",\n    \".el-input__inner\",\n    \"input\",\n]\n\n# 常见“下拉选项”选择器\nDROPDOWN_OPTION_SELECTORS = [\n    \"[role='option']\",\n    \".ant-select-item-option\",\n    \".el-select-dropdown__item\",\n    \".ivu-select-item\",\n    \"li\",\n]\n\n# 结果列表行：按顺序尝试，命中第一个有内容的选择器\nRESULT_ROW_SELECTORS = [\n    \"table tbody tr\",\n    \".ant-table-tbody > tr\",\n    \".el-table__body-wrapper tbody tr\",\n    \".activity-item\",\n    \".ant-list-item\",\n    \".list-item\",\n    \".card-item\",\n]\n\nTITLE_CANDIDATE_SELECTORS = [\n    \"a\",\n    \"h2\",\n    \"h3\",\n    \"h4\",\n    \".title\",\n    \".activity-title\",\n    \".name\",\n]\n\nSTATUS_KEYWORDS = [\n    \"报名中\",\n    \"报名已满员\",\n    \"未开始\",\n    \"进行中\",\n    \"已结束\",\n    \"已截止\",\n]\nEOF"
+          },
+          "timestamp": "2026-03-17T11:33:24.184Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "cat > main.py <<'EOF'\nimport argparse\nimport json\nimport logging\nfrom pathlib import Path\n\nfrom monitor import LectureMonitor\n\n\ndef setup_logging() -> None:\n    \"\"\"初始化日志：同时输出到终端和文件。\"\"\"\n    log_dir = Path(\"logs\")\n    log_dir.mkdir(parents=True, exist_ok=True)\n\n    logging.basicConfig(\n        level=logging.INFO,\n        format=\"%(asctime)s | %(levelname)s | %(message)s\",\n        handlers=[\n            logging.StreamHandler(),\n            logging.FileHandler(log_dir / \"monitor.log\", encoding=\"utf-8\"),\n        ],\n    )\n\n\ndef load_config(config_path: Path) -> dict:\n    \"\"\"读取 JSON 配置文件。\"\"\"\n    if not config_path.exists():\n        raise FileNotFoundError(\n            f\"未找到配置文件: {config_path}。请先基于 config.example.json 创建 config.json\"\n        )\n\n    with config_path.open(\"r\", encoding=\"utf-8\") as file:\n        return json.load(file)\n\n\ndef parse_args() -> argparse.Namespace:\n    parser = argparse.ArgumentParser(description=\"RUC 讲座监控（第一阶段最小可运行版本）\")\n    parser.add_argument(\n        \"--config\",\n        default=\"config.json\",\n        help=\"配置文件路径，默认: config.json\",\n    )\n    return parser.parse_args()\n\n\ndef main() -> None:\n    args = parse_args()\n    setup_logging()\n\n    try:\n        config = load_config(Path(args.config))\n        monitor = LectureMonitor(config)\n        activities = monitor.run_once()\n\n        print(\"\\n===== 当前活动列表 =====\")\n        if not activities:\n            print(\"未解析到活动（可能是筛选结果为空，或选择器需要调试）。\")\n            return\n\n        for index, activity in enumerate(activities, start=1):\n            print(f\"{index}. 标题: {activity.title}\")\n            print(f\"   状态: {activity.status}\")\n            print(f\"   时间: {activity.time_text}\")\n\n    except Exception as exc:\n        logging.exception(\"运行失败: %s\", exc)\n        raise\n\n\nif __name__ == \"__main__\":\n    main()\nEOF"
+          },
+          "timestamp": "2026-03-17T11:33:24.194Z"
+        },
+        {
+          "type": "assistant",
+          "text": "筛选页面的真实 DOM 结构目前未知，我会在实现里用“多策略定位 + 明确 TODO”方式保证可调试：先走 `role/text`，再走常见表单 CSS 容器，失败时打印具体调试提示，不使用脆弱长 XPath。现在写 `monitor.py` 和 `README.md`。",
+          "timestamp": "2026-03-17T11:35:01.600Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "cat > monitor.py <<'EOF'\nimport logging\nimport re\nfrom pathlib import Path\nfrom typing import Any, Optional\n\nfrom playwright.sync_api import Locator, Page, TimeoutError as PlaywrightTimeoutError, sync_playwright\n\nfrom models import Activity\nimport selectors\n\n\nclass LectureMonitor:\n    \"\"\"第一阶段：最小可运行监控流程。\"\"\"\n\n    def __init__(self, config: dict[str, Any]):\n        self.url = config[\"url\"]\n\n        browser_config = config.get(\"browser\", {})\n        self.headless = bool(browser_config.get(\"headless\", False))\n        self.slow_mo_ms = int(browser_config.get(\"slow_mo_ms\", 0))\n        self.profile_dir = Path(browser_config.get(\"profile_dir\", \"data/browser_profile\"))\n\n        timeout_config = config.get(\"timeouts\", {})\n        self.page_load_ms = int(timeout_config.get(\"page_load_ms\", 30000))\n        self.ui_wait_ms = int(timeout_config.get(\"ui_wait_ms\", 8000))\n\n        self.profile_dir.mkdir(parents=True, exist_ok=True)\n\n    def run_once(self) -> list[Activity]:\n        \"\"\"执行一次完整流程：进入页面、筛选、查询、解析结果。\"\"\"\n        with sync_playwright() as playwright:\n            context = playwright.chromium.launch_persistent_context(\n                user_data_dir=str(self.profile_dir),\n                headless=self.headless,\n                slow_mo=self.slow_mo_ms,\n            )\n\n            page = context.new_page()\n            logging.info(\"打开页面: %s\", self.url)\n            page.goto(self.url, wait_until=\"domcontentloaded\", timeout=self.page_load_ms)\n\n            self._ensure_login(page)\n            self._apply_filters(page)\n            self._click_query(page)\n\n            activities = self._parse_activities(page)\n            logging.info(\"本次解析到 %d 条活动\", len(activities))\n\n            context.close()\n            return activities\n\n    def _ensure_login(self, page: Page) -> None:\n        \"\"\"检测是否已登录；如果未登录，提示用户手动登录。\"\"\"\n        if self._has_search_filters(page):\n            logging.info(\"检测到筛选区域，登录状态可用。\")\n            return\n\n        logging.warning(\"暂未检测到筛选区域，可能尚未登录或登录失效。\")\n        input(\"请在打开的浏览器中手动登录，然后回到终端按回车继续... \")\n\n        page.goto(self.url, wait_until=\"domcontentloaded\", timeout=self.page_load_ms)\n        if not self._has_search_filters(page):\n            self._print_login_debug_tips()\n            raise RuntimeError(\"登录后仍未检测到筛选区域，请按 README 的调试步骤检查页面元素。\")\n\n    def _has_search_filters(self, page: Page) -> bool:\n        \"\"\"粗略判断：页面是否存在筛选标签文本。\"\"\"\n        hit_count = 0\n        for item in selectors.FILTER_CONFIG:\n            label = item[\"label\"]\n            if page.get_by_text(label, exact=False).count() > 0:\n                hit_count += 1\n\n        return hit_count >= 2\n\n    def _apply_filters(self, page: Page) -> None:\n        \"\"\"按规格依次设置四个筛选项。\"\"\"\n        for item in selectors.FILTER_CONFIG:\n            label = item[\"label\"]\n            option = item[\"option\"]\n            logging.info(\"设置筛选：%s -> %s\", label, option)\n            success = self._set_single_filter(page, label, option)\n            if not success:\n                self._print_filter_debug_tips(label, option)\n                raise RuntimeError(f\"筛选失败：{label} -> {option}\")\n            page.wait_for_timeout(250)\n\n    def _set_single_filter(self, page: Page, label: str, option: str) -> bool:\n        \"\"\"设置单个筛选项，使用多种稳健定位策略。\"\"\"\n        if self._open_dropdown_by_role(page, label) and self._click_dropdown_option(page, option):\n            return True\n\n        if self._open_dropdown_near_label(page, label) and self._click_dropdown_option(page, option):\n            return True\n\n        if self._open_dropdown_by_label_text(page, label) and self._click_dropdown_option(page, option):\n            return True\n\n        return False\n\n    def _open_dropdown_by_role(self, page: Page, label: str) -> bool:\n        \"\"\"策略 1：通过 ARIA role + 可访问名称定位下拉框。\"\"\"\n        try:\n            combobox = page.get_by_role(\"combobox\", name=re.compile(label))\n            if combobox.count() == 0:\n                return False\n            combobox.first.click(timeout=self.ui_wait_ms)\n            return True\n        except PlaywrightTimeoutError:\n            return False\n\n    def _open_dropdown_near_label(self, page: Page, label: str) -> bool:\n        \"\"\"策略 2：在常见表单项容器中，查找带指定 label 的下拉触发器。\"\"\"\n        for form_selector in selectors.FORM_ITEM_SELECTORS:\n            form_items = page.locator(form_selector).filter(has_text=label)\n            if form_items.count() == 0:\n                continue\n\n            form_item = form_items.first\n            for trigger_selector in selectors.DROPDOWN_TRIGGER_SELECTORS:\n                trigger = form_item.locator(trigger_selector)\n                if trigger.count() == 0:\n                    continue\n\n                try:\n                    trigger.first.click(timeout=self.ui_wait_ms)\n                    return True\n                except PlaywrightTimeoutError:\n                    continue\n\n        return False\n\n    def _open_dropdown_by_label_text(self, page: Page, label: str) -> bool:\n        \"\"\"策略 3：直接点击标签文本，适配部分自定义 UI。\"\"\"\n        try:\n            label_node = page.get_by_text(label, exact=False)\n            if label_node.count() == 0:\n                return False\n\n            label_node.first.click(timeout=self.ui_wait_ms)\n            return True\n        except PlaywrightTimeoutError:\n            return False\n\n    def _click_dropdown_option(self, page: Page, option: str) -> bool:\n        \"\"\"在已展开的下拉中选择目标项。\"\"\"\n        try:\n            option_by_role = page.get_by_role(\"option\", name=option)\n            if option_by_role.count() > 0:\n                option_by_role.first.click(timeout=self.ui_wait_ms)\n                return True\n        except PlaywrightTimeoutError:\n            pass\n\n        for option_selector in selectors.DROPDOWN_OPTION_SELECTORS:\n            option_node = page.locator(option_selector).filter(has_text=option)\n            if option_node.count() == 0:\n                continue\n\n            try:\n                option_node.first.click(timeout=self.ui_wait_ms)\n                return True\n            except PlaywrightTimeoutError:\n                continue\n\n        try:\n            text_node = page.get_by_text(option, exact=True)\n            if text_node.count() > 0:\n                text_node.first.click(timeout=self.ui_wait_ms)\n                return True\n        except PlaywrightTimeoutError:\n            pass\n\n        return False\n\n    def _click_query(self, page: Page) -> None:\n        \"\"\"点击“查询”按钮。\"\"\"\n        try:\n            button = page.get_by_role(\"button\", name=selectors.QUERY_BUTTON_TEXT)\n            if button.count() > 0:\n                button.first.click(timeout=self.ui_wait_ms)\n                return\n        except PlaywrightTimeoutError:\n            pass\n\n        text_button = page.get_by_text(selectors.QUERY_BUTTON_TEXT, exact=True)\n        if text_button.count() == 0:\n            raise RuntimeError(\"未找到“查询”按钮。\")\n\n        text_button.first.click(timeout=self.ui_wait_ms)\n\n    def _parse_activities(self, page: Page) -> list[Activity]:\n        \"\"\"解析活动列表，提取标题、状态、时间。\"\"\"\n        page.wait_for_timeout(1200)\n\n        rows = self._find_result_rows(page)\n        if rows is None:\n            self._print_result_debug_tips()\n            return []\n\n        total = rows.count()\n        activities: list[Activity] = []\n        for idx in range(total):\n            row = rows.nth(idx)\n            activity = self._extract_activity(row)\n            if activity is not None:\n                activities.append(activity)\n\n        return activities\n\n    def _find_result_rows(self, page: Page) -> Optional[Locator]:\n        \"\"\"按顺序尝试多个结果行选择器。\"\"\"\n        for row_selector in selectors.RESULT_ROW_SELECTORS:\n            rows = page.locator(row_selector)\n            if rows.count() > 0:\n                logging.info(\"使用结果选择器: %s\", row_selector)\n                return rows\n\n        return None\n\n    def _extract_activity(self, row: Locator) -> Optional[Activity]:\n        \"\"\"从单行中提取活动字段。\"\"\"\n        row_text = self._safe_inner_text(row)\n        if not row_text:\n            return None\n\n        title = self._extract_title(row, row_text)\n        if not title:\n            return None\n\n        status = self._extract_status(row_text)\n        time_text = self._extract_time(row_text)\n        return Activity(title=title, status=status, time_text=time_text)\n\n    def _extract_title(self, row: Locator, row_text: str) -> str:\n        \"\"\"优先从常见标题节点提取；失败再从整行文本推断。\"\"\"\n        for selector in selectors.TITLE_CANDIDATE_SELECTORS:\n            title_node = row.locator(selector)\n            if title_node.count() == 0:\n                continue\n\n            candidate = self._safe_inner_text(title_node.first)\n            if candidate:\n                return candidate\n\n        lines = [line.strip() for line in row_text.splitlines() if line.strip()]\n        for line in lines:\n            if any(keyword in line for keyword in selectors.STATUS_KEYWORDS):\n                continue\n            if self._contains_date(line):\n                continue\n            return line\n\n        return \"\"\n\n    def _extract_status(self, row_text: str) -> str:\n        \"\"\"根据关键词提取状态文本。\"\"\"\n        for keyword in selectors.STATUS_KEYWORDS:\n            if keyword in row_text:\n                return keyword\n        return \"未知\"\n\n    def _extract_time(self, row_text: str) -> str:\n        \"\"\"提取时间文本（兼容常见日期格式）。\"\"\"\n        time_pattern = re.compile(\n            r\"(\\d{4}[./-]\\d{1,2}[./-]\\d{1,2}(?:\\s+\\d{1,2}:\\d{2})?\"\n            r\"(?:\\s*[~\\-至到]\\s*\\d{4}[./-]\\d{1,2}[./-]\\d{1,2}(?:\\s+\\d{1,2}:\\d{2})?)?)\"\n        )\n\n        match = time_pattern.search(row_text)\n        if match:\n            return match.group(1)\n\n        return \"未识别\"\n\n    def _contains_date(self, text: str) -> bool:\n        return bool(re.search(r\"\\d{4}[./-]\\d{1,2}[./-]\\d{1,2}\", text))\n\n    def _safe_inner_text(self, locator: Locator) -> str:\n        \"\"\"安全读取文本，避免因局部节点异常导致整体流程中断。\"\"\"\n        try:\n            return locator.inner_text(timeout=800).strip()\n        except PlaywrightTimeoutError:\n            return \"\"\n\n    def _print_login_debug_tips(self) -> None:\n        logging.error(\"TODO: 登录后仍未识别筛选区。请检查页面是否停留在活动检索页。\")\n        logging.error(\"调试建议：确认 URL 是否为 /campus#/search，且页面已完全加载。\")\n\n    def _print_filter_debug_tips(self, label: str, option: str) -> None:\n        logging.error(\"TODO: 无法定位筛选项 -> %s / %s\", label, option)\n        logging.error(\"调试建议：使用浏览器开发者工具检查该筛选框的标签文本和下拉 DOM 结构。\")\n        logging.error(\"调试建议：若页面使用了新组件，请在 selectors.py 中补充容器与选项选择器。\")\n\n    def _print_result_debug_tips(self) -> None:\n        logging.warning(\"TODO: 查询后未匹配到结果行选择器。\")\n        logging.warning(\"调试建议：检查列表是 table 还是 card，并在 selectors.py 的 RESULT_ROW_SELECTORS 中补充。\")\nEOF"
+          },
+          "timestamp": "2026-03-17T11:35:01.602Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "cat > README.md <<'EOF'\n# RUC 形势与政策讲座监控脚本（第一阶段）\n\n当前仅实现 **第一阶段：最小可运行版本**。\n\n已实现内容：\n- Playwright 持久化浏览器上下文（复用登录状态）\n- 首次可手动登录\n- 自动设置四个筛选条件\n- 点击“查询”\n- 终端打印活动标题 / 状态 / 时间\n\n未实现内容（后续阶段）：\n- 历史记录对比\n- 邮件通知\n- 定时循环调度\n\n## 1. 环境准备\n\n```bash\npython3 -m venv .venv\nsource .venv/bin/activate\npip install -r requirements.txt\nplaywright install chromium\n```\n\n## 2. 配置文件\n\n```bash\ncp config.example.json config.json\n```\n\n按需修改 `config.json`：\n- `browser.headless`: 建议第一阶段设为 `false`，便于观察和调试\n- `browser.profile_dir`: 浏览器登录状态保存目录（默认 `data/browser_profile`）\n\n## 3. 运行脚本\n\n```bash\npython main.py\n```\n\n或指定配置文件：\n\n```bash\npython main.py --config config.json\n```\n\n## 4. 首次手动登录流程\n\n1. 脚本会打开 Chromium 浏览器。\n2. 如果检测到未登录，会提示你手动登录。\n3. 登录完成后，回到终端按回车，脚本继续执行筛选与查询。\n\n## 5. 如何确认登录状态已复用\n\n- 关闭脚本后再次运行 `python main.py`\n- 如果不再要求重新登录，说明 `data/browser_profile` 中的状态已被复用\n\n## 6. 页面元素调试方法（定位失败时）\n\n如果日志出现 `TODO` 提示，请按下面步骤检查：\n\n1. 打开浏览器开发者工具，确认筛选标签文本是否与以下完全一致：\n   - 活动大类\n   - 活动小类\n   - 小类子类\n   - 活动状态\n2. 检查下拉框组件类型（例如 Ant Design / Element）\n3. 根据实际 DOM，在 `selectors.py` 中补充：\n   - `FORM_ITEM_SELECTORS`\n   - `DROPDOWN_TRIGGER_SELECTORS`\n   - `DROPDOWN_OPTION_SELECTORS`\n   - `RESULT_ROW_SELECTORS`\n\n可使用 Playwright 录制辅助定位：\n\n```bash\nplaywright codegen https://v.ruc.edu.cn/campus#/search\n```\n\n## 7. 说明\n\n- 本项目不自动输入账号密码和验证码\n- 本项目不做验证码识别/绕过\n- 本项目不自动报名\nEOF"
+          },
+          "timestamp": "2026-03-17T11:35:01.603Z"
+        },
+        {
+          "type": "assistant",
+          "text": "核心文件已写完，我现在做一次快速自检（语法检查 + 文件清单确认），确保第一阶段代码可直接运行。",
+          "timestamp": "2026-03-17T11:35:11.179Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "ls -la"
+          },
+          "timestamp": "2026-03-17T11:35:11.179Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "python -m py_compile main.py monitor.py models.py selectors.py"
+          },
+          "timestamp": "2026-03-17T11:35:11.180Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "find . -maxdepth 3 -type d | sort"
+          },
+          "timestamp": "2026-03-17T11:35:11.183Z"
+        },
+        {
+          "type": "assistant",
+          "text": "我会再读取一遍所有新文件内容，确保给你的输出顺序里能完整贴出每个文件代码，并明确哪些定位点可能需要你手动调试。",
+          "timestamp": "2026-03-17T11:35:17.521Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "cat requirements.txt"
+          },
+          "timestamp": "2026-03-17T11:35:17.522Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "cat config.example.json"
+          },
+          "timestamp": "2026-03-17T11:35:17.522Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "cat models.py"
+          },
+          "timestamp": "2026-03-17T11:35:17.928Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "cat selectors.py"
+          },
+          "timestamp": "2026-03-17T11:35:17.929Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "cat main.py"
+          },
+          "timestamp": "2026-03-17T11:35:25.815Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "cat monitor.py"
+          },
+          "timestamp": "2026-03-17T11:35:25.815Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "cat README.md"
+          },
+          "timestamp": "2026-03-17T11:35:25.816Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "update_plan",
+          "input": {
+            "explanation": "已完成代码实现并通过 py_compile 语法检查，正在整理按用户要求的固定输出顺序。",
+            "plan": [
+              {
+                "status": "completed",
+                "step": "梳理第一阶段需求并设计最小文件结构"
+              },
+              {
+                "status": "completed",
+                "step": "实现 Playwright 持久化登录、筛选查询与活动解析输出"
+              },
+              {
+                "status": "completed",
+                "step": "补充配置模板、依赖清单与 README 运行调试说明"
+              },
+              {
+                "status": "in_progress",
+                "step": "自检代码与运行步骤，整理给用户的分项输出"
+              }
+            ]
+          },
+          "timestamp": "2026-03-17T11:35:32.776Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "update_plan",
+          "input": {
+            "plan": [
+              {
+                "status": "completed",
+                "step": "梳理第一阶段需求并设计最小文件结构"
+              },
+              {
+                "status": "completed",
+                "step": "实现 Playwright 持久化登录、筛选查询与活动解析输出"
+              },
+              {
+                "status": "completed",
+                "step": "补充配置模板、依赖清单与 README 运行调试说明"
+              },
+              {
+                "status": "completed",
+                "step": "自检代码与运行步骤，整理给用户的分项输出"
+              }
+            ]
+          },
+          "timestamp": "2026-03-17T11:35:46.092Z"
+        },
+        {
+          "type": "assistant",
+          "text": "1. 第一阶段开发计划\n- 创建最小目录与基础文件（仅第一阶段需要的内容）。\n- 实现 Playwright 持久化浏览器上下文，支持首次手动登录与后续复用登录状态。\n- 实现四个筛选条件自动设置与“查询”按钮点击。\n- 解析查询结果并打印标题、状态、时间。\n- 加入基础日志与调试提示（只用于第一阶段跑通流程，不做历史比对/邮件/定时）。\n\n2. 将创建哪些文件\n- `requirements.txt`\n- `config.example.json`\n- `main.py`\n- `monitor.py`\n- `models.py`\n- `selectors.py`\n- `README.md`\n- 目录：`logs/`\n- 目录：`data/browser_profile/`\n\n3. 每个文件的代码\n\n`requirements.txt`\n```txt\nplaywright>=1.43.0\n```\n\n`config.example.json`\n```json\n{\n  \"url\": \"https://v.ruc.edu.cn/campus#/search\",\n  \"browser\": {\n    \"headless\": false,\n    \"slow_mo_ms\": 100,\n    \"profile_dir\": \"data/browser_profile\"\n  },\n  \"timeouts\": {\n    \"page_load_ms\": 30000,\n    \"ui_wait_ms\": 8000\n  }\n}\n```\n\n`models.py`\n```python\nfrom dataclasses import dataclass\n\n\n@dataclass\nclass Activity:\n    \"\"\"单条活动信息（第一阶段只保留展示所需字段）。\"\"\"\n\n    title: str\n    status: str\n    time_text: str\n```\n\n`selectors.py`\n```python\n\"\"\"页面元素选择器与筛选配置。\n\n说明：\n1. 优先使用语义化定位（role/text）。\n2. 这里保留少量可调整的 CSS 选择器，方便你手动调试。\n\"\"\"\n\nFILTER_CONFIG = [\n    {\"label\": \"活动大类\", \"option\": \"素质拓展认证\"},\n    {\"label\": \"活动小类\", \"option\": \"形势与政策\"},\n    {\"label\": \"小类子类\", \"option\": \"形势与政策讲座\"},\n    {\"label\": \"活动状态\", \"option\": \"未开始\"},\n]\n\nQUERY_BUTTON_TEXT = \"查询\"\n\n# 常见 UI 库中的“筛选项容器”，用于在 label 附近查找下拉框触发器\nFORM_ITEM_SELECTORS = [\n    \".ant-form-item\",\n    \".el-form-item\",\n    \".ivu-form-item\",\n    \".form-item\",\n    \".search-item\",\n]\n\n# 常见“下拉框触发器”选择器\nDROPDOWN_TRIGGER_SELECTORS = [\n    \"[role='combobox']\",\n    \".ant-select-selector\",\n    \".el-select\",\n    \".el-input__inner\",\n    \"input\",\n]\n\n# 常见“下拉选项”选择器\nDROPDOWN_OPTION_SELECTORS = [\n    \"[role='option']\",\n    \".ant-select-item-option\",\n    \".el-select-dropdown__item\",\n    \".ivu-select-item\",\n    \"li\",\n]\n\n# 结果列表行：按顺序尝试，命中第一个有内容的选择器\nRESULT_ROW_SELECTORS = [\n    \"table tbody tr\",\n    \".ant-table-tbody > tr\",\n    \".el-table__body-wrapper tbody tr\",\n    \".activity-item\",\n    \".ant-list-item\",\n    \".list-item\",\n    \".card-item\",\n]\n\nTITLE_CANDIDATE_SELECTORS = [\n    \"a\",\n    \"h2\",\n    \"h3\",\n    \"h4\",\n    \".title\",\n    \".activity-title\",\n    \".name\",\n]\n\nSTATUS_KEYWORDS = [\n    \"报名中\",\n    \"报名已满员\",\n    \"未开始\",\n    \"进行中\",\n    \"已结束\",\n    \"已截止\",\n]\n```\n\n`monitor.py`\n```python\nimport logging\nimport re\nfrom pathlib import Path\nfrom typing import Any, Optional\n\nfrom playwright.sync_api import Locator, Page, TimeoutError as PlaywrightTimeoutError, sync_playwright\n\nfrom models import Activity\nimport selectors\n\n\nclass LectureMonitor:\n    \"\"\"第一阶段：最小可运行监控流程。\"\"\"\n\n    def __init__(self, config: dict[str, Any]):\n        self.url = config[\"url\"]\n\n        browser_config = config.get(\"browser\", {})\n        self.headless = bool(browser_config.get(\"headless\", False))\n        self.slow_mo_ms = int(browser_config.get(\"slow_mo_ms\", 0))\n        self.profile_dir = Path(browser_config.get(\"profile_dir\", \"data/browser_profile\"))\n\n        timeout_config = config.get(\"timeouts\", {})\n        self.page_load_ms = int(timeout_config.get(\"page_load_ms\", 30000))\n        self.ui_wait_ms = int(timeout_config.get(\"ui_wait_ms\", 8000))\n\n        self.profile_dir.mkdir(parents=True, exist_ok=True)\n\n    def run_once(self) -> list[Activity]:\n        \"\"\"执行一次完整流程：进入页面、筛选、查询、解析结果。\"\"\"\n        with sync_playwright() as playwright:\n            context = playwright.chromium.launch_persistent_context(\n                user_data_dir=str(self.profile_dir),\n                headless=self.headless,\n                slow_mo=self.slow_mo_ms,\n            )\n\n            page = context.new_page()\n            logging.info(\"打开页面: %s\", self.url)\n            page.goto(self.url, wait_until=\"domcontentloaded\", timeout=self.page_load_ms)\n\n            self._ensure_login(page)\n            self._apply_filters(page)\n            self._click_query(page)\n\n            activities = self._parse_activities(page)\n            logging.info(\"本次解析到 %d 条活动\", len(activities))\n\n            context.close()\n            return activities\n\n    def _ensure_login(self, page: Page) -> None:\n        \"\"\"检测是否已登录；如果未登录，提示用户手动登录。\"\"\"\n        if self._has_search_filters(page):\n            logging.info(\"检测到筛选区域，登录状态可用。\")\n            return\n\n        logging.warning(\"暂未检测到筛选区域，可能尚未登录或登录失效。\")\n        input(\"请在打开的浏览器中手动登录，然后回到终端按回车继续... \")\n\n        page.goto(self.url, wait_until=\"domcontentloaded\", timeout=self.page_load_ms)\n        if not self._has_search_filters(page):\n            self._print_login_debug_tips()\n            raise RuntimeError(\"登录后仍未检测到筛选区域，请按 README 的调试步骤检查页面元素。\")\n\n    def _has_search_filters(self, page: Page) -> bool:\n        \"\"\"粗略判断：页面是否存在筛选标签文本。\"\"\"\n        hit_count = 0\n        for item in selectors.FILTER_CONFIG:\n            label = item[\"label\"]\n            if page.get_by_text(label, exact=False).count() > 0:\n                hit_count += 1\n\n        return hit_count >= 2\n\n    def _apply_filters(self, page: Page) -> None:\n        \"\"\"按规格依次设置四个筛选项。\"\"\"\n        for item in selectors.FILTER_CONFIG:\n            label = item[\"label\"]\n            option = item[\"option\"]\n            logging.info(\"设置筛选：%s -> %s\", label, option)\n            success = self._set_single_filter(page, label, option)\n            if not success:\n                self._print_filter_debug_tips(label, option)\n                raise RuntimeError(f\"筛选失败：{label} -> {option}\")\n            page.wait_for_timeout(250)\n\n    def _set_single_filter(self, page: Page, label: str, option: str) -> bool:\n        \"\"\"设置单个筛选项，使用多种稳健定位策略。\"\"\"\n        if self._open_dropdown_by_role(page, label) and self._click_dropdown_option(page, option):\n            return True\n\n        if self._open_dropdown_near_label(page, label) and self._click_dropdown_option(page, option):\n            return True\n\n        if self._open_dropdown_by_label_text(page, label) and self._click_dropdown_option(page, option):\n            return True\n\n        return False\n\n    def _open_dropdown_by_role(self, page: Page, label: str) -> bool:\n        \"\"\"策略 1：通过 ARIA role + 可访问名称定位下拉框。\"\"\"\n        try:\n            combobox = page.get_by_role(\"combobox\", name=re.compile(label))\n            if combobox.count() == 0:\n                return False\n            combobox.first.click(timeout=self.ui_wait_ms)\n            return True\n        except PlaywrightTimeoutError:\n            return False\n\n    def _open_dropdown_near_label(self, page: Page, label: str) -> bool:\n        \"\"\"策略 2：在常见表单项容器中，查找带指定 label 的下拉触发器。\"\"\"\n        for form_selector in selectors.FORM_ITEM_SELECTORS:\n            form_items = page.locator(form_selector).filter(has_text=label)\n            if form_items.count() == 0:\n                continue\n\n            form_item = form_items.first\n            for trigger_selector in selectors.DROPDOWN_TRIGGER_SELECTORS:\n                trigger = form_item.locator(trigger_selector)\n                if trigger.count() == 0:\n                    continue\n\n                try:\n                    trigger.first.click(timeout=self.ui_wait_ms)\n                    return True\n                except PlaywrightTimeoutError:\n                    continue\n\n        return False\n\n    def _open_dropdown_by_label_text(self, page: Page, label: str) -> bool:\n        \"\"\"策略 3：直接点击标签文本，适配部分自定义 UI。\"\"\"\n        try:\n            label_node = page.get_by_text(label, exact=False)\n            if label_node.count() == 0:\n                return False\n\n            label_node.first.click(timeout=self.ui_wait_ms)\n            return True\n        except PlaywrightTimeoutError:\n            return False\n\n    def _click_dropdown_option(self, page: Page, option: str) -> bool:\n        \"\"\"在已展开的下拉中选择目标项。\"\"\"\n        try:\n            option_by_role = page.get_by_role(\"option\", name=option)\n            if option_by_role.count() > 0:\n                option_by_role.first.click(timeout=self.ui_wait_ms)\n                return True\n        except PlaywrightTimeoutError:\n            pass\n\n        for option_selector in selectors.DROPDOWN_OPTION_SELECTORS:\n            option_node = page.locator(option_selector).filter(has_text=option)\n            if option_node.count() == 0:\n                continue\n\n            try:\n                option_node.first.click(timeout=self.ui_wait_ms)\n                return True\n            except PlaywrightTimeoutError:\n                continue\n\n        try:\n            text_node = page.get_by_text(option, exact=True)\n            if text_node.count() > 0:\n                text_node.first.click(timeout=self.ui_wait_ms)\n                return True\n        except PlaywrightTimeoutError:\n            pass\n\n        return False\n\n    def _click_query(self, page: Page) -> None:\n        \"\"\"点击“查询”按钮。\"\"\"\n        try:\n            button = page.get_by_role(\"button\", name=selectors.QUERY_BUTTON_TEXT)\n            if button.count() > 0:\n                button.first.click(timeout=self.ui_wait_ms)\n                return\n        except PlaywrightTimeoutError:\n            pass\n\n        text_button = page.get_by_text(selectors.QUERY_BUTTON_TEXT, exact=True)\n        if text_button.count() == 0:\n            raise RuntimeError(\"未找到“查询”按钮。\")\n\n        text_button.first.click(timeout=self.ui_wait_ms)\n\n    def _parse_activities(self, page: Page) -> list[Activity]:\n        \"\"\"解析活动列表，提取标题、状态、时间。\"\"\"\n        page.wait_for_timeout(1200)\n\n        rows = self._find_result_rows(page)\n        if rows is None:\n            self._print_result_debug_tips()\n            return []\n\n        total = rows.count()\n        activities: list[Activity] = []\n        for idx in range(total):\n            row = rows.nth(idx)\n            activity = self._extract_activity(row)\n            if activity is not None:\n                activities.append(activity)\n\n        return activities\n\n    def _find_result_rows(self, page: Page) -> Optional[Locator]:\n        \"\"\"按顺序尝试多个结果行选择器。\"\"\"\n        for row_selector in selectors.RESULT_ROW_SELECTORS:\n            rows = page.locator(row_selector)\n            if rows.count() > 0:\n                logging.info(\"使用结果选择器: %s\", row_selector)\n                return rows\n\n        return None\n\n    def _extract_activity(self, row: Locator) -> Optional[Activity]:\n        \"\"\"从单行中提取活动字段。\"\"\"\n        row_text = self._safe_inner_text(row)\n        if not row_text:\n            return None\n\n        title = self._extract_title(row, row_text)\n        if not title:\n            return None\n\n        status = self._extract_status(row_text)\n        time_text = self._extract_time(row_text)\n        return Activity(title=title, status=status, time_text=time_text)\n\n    def _extract_title(self, row: Locator, row_text: str) -> str:\n        \"\"\"优先从常见标题节点提取；失败再从整行文本推断。\"\"\"\n        for selector in selectors.TITLE_CANDIDATE_SELECTORS:\n            title_node = row.locator(selector)\n            if title_node.count() == 0:\n                continue\n\n            candidate = self._safe_inner_text(title_node.first)\n            if candidate:\n                return candidate\n\n        lines = [line.strip() for line in row_text.splitlines() if line.strip()]\n        for line in lines:\n            if any(keyword in line for keyword in selectors.STATUS_KEYWORDS):\n                continue\n            if self._contains_date(line):\n                continue\n            return line\n\n        return \"\"\n\n    def _extract_status(self, row_text: str) -> str:\n        \"\"\"根据关键词提取状态文本。\"\"\"\n        for keyword in selectors.STATUS_KEYWORDS:\n            if keyword in row_text:\n                return keyword\n        return \"未知\"\n\n    def _extract_time(self, row_text: str) -> str:\n        \"\"\"提取时间文本（兼容常见日期格式）。\"\"\"\n        time_pattern = re.compile(\n            r\"(\\d{4}[./-]\\d{1,2}[./-]\\d{1,2}(?:\\s+\\d{1,2}:\\d{2})?\"\n            r\"(?:\\s*[~\\-至到]\\s*\\d{4}[./-]\\d{1,2}[./-]\\d{1,2}(?:\\s+\\d{1,2}:\\d{2})?)?)\"\n        )\n\n        match = time_pattern.search(row_text)\n        if match:\n            return match.group(1)\n\n        return \"未识别\"\n\n    def _contains_date(self, text: str) -> bool:\n        return bool(re.search(r\"\\d{4}[./-]\\d{1,2}[./-]\\d{1,2}\", text))\n\n    def _safe_inner_text(self, locator: Locator) -> str:\n        \"\"\"安全读取文本，避免因局部节点异常导致整体流程中断。\"\"\"\n        try:\n            return locator.inner_text(timeout=800).strip()\n        except PlaywrightTimeoutError:\n            return \"\"\n\n    def _print_login_debug_tips(self) -> None:\n        logging.error(\"TODO: 登录后仍未识别筛选区。请检查页面是否停留在活动检索页。\")\n        logging.error(\"调试建议：确认 URL 是否为 /campus#/search，且页面已完全加载。\")\n\n    def _print_filter_debug_tips(self, label: str, option: str) -> None:\n        logging.error(\"TODO: 无法定位筛选项 -> %s / %s\", label, option)\n        logging.error(\"调试建议：使用浏览器开发者工具检查该筛选框的标签文本和下拉 DOM 结构。\")\n        logging.error(\"调试建议：若页面使用了新组件，请在 selectors.py 中补充容器与选项选择器。\")\n\n    def _print_result_debug_tips(self) -> None:\n        logging.warning(\"TODO: 查询后未匹配到结果行选择器。\")\n        logging.warning(\"调试建议：检查列表是 table 还是 card，并在 selectors.py 的 RESULT_ROW_SELECTORS 中补充。\")\n```\n\n`main.py`\n```python\nimport argparse\nimport json\nimport logging\nfrom pathlib import Path\n\nfrom monitor import LectureMonitor\n\n\ndef setup_logging() -> None:\n    \"\"\"初始化日志：同时输出到终端和文件。\"\"\"\n    log_dir = Path(\"logs\")\n    log_dir.mkdir(parents=True, exist_ok=True)\n\n    logging.basicConfig(\n        level=logging.INFO,\n        format=\"%(asctime)s | %(levelname)s | %(message)s\",\n        handlers=[\n            logging.StreamHandler(),\n            logging.FileHandler(log_dir / \"monitor.log\", encoding=\"utf-8\"),\n        ],\n    )\n\n\ndef load_config(config_path: Path) -> dict:\n    \"\"\"读取 JSON 配置文件。\"\"\"\n    if not config_path.exists():\n        raise FileNotFoundError(\n            f\"未找到配置文件: {config_path}。请先基于 config.example.json 创建 config.json\"\n        )\n\n    with config_path.open(\"r\", encoding=\"utf-8\") as file:\n        return json.load(file)\n\n\ndef parse_args() -> argparse.Namespace:\n    parser = argparse.ArgumentParser(description=\"RUC 讲座监控（第一阶段最小可运行版本）\")\n    parser.add_argument(\n        \"--config\",\n        default=\"config.json\",\n        help=\"配置文件路径，默认: config.json\",\n    )\n    return parser.parse_args()\n\n\ndef main() -> None:\n    args = parse_args()\n    setup_logging()\n\n    try:\n        config = load_config(Path(args.config))\n        monitor = LectureMonitor(config)\n        activities = monitor.run_once()\n\n        print(\"\\n===== 当前活动列表 =====\")\n        if not activities:\n            print(\"未解析到活动（可能是筛选结果为空，或选择器需要调试）。\")\n            return\n\n        for index, activity in enumerate(activities, start=1):\n            print(f\"{index}. 标题: {activity.title}\")\n            print(f\"   状态: {activity.status}\")\n            print(f\"   时间: {activity.time_text}\")\n\n    except Exception as exc:\n        logging.exception(\"运行失败: %s\", exc)\n        raise\n\n\nif __name__ == \"__main__\":\n    main()\n```\n\n`README.md`\n```markdown\n# RUC 形势与政策讲座监控脚本（第一阶段）\n\n当前仅实现 **第一阶段：最小可运行版本**。\n\n已实现内容：\n- Playwright 持久化浏览器上下文（复用登录状态）\n- 首次可手动登录\n- 自动设置四个筛选条件\n- 点击“查询”\n- 终端打印活动标题 / 状态 / 时间\n\n未实现内容（后续阶段）：\n- 历史记录对比\n- 邮件通知\n- 定时循环调度\n\n## 1. 环境准备\n\n```bash\npython3 -m venv .venv\nsource .venv/bin/activate\npip install -r requirements.txt\nplaywright install chromium\n```\n\n## 2. 配置文件\n\n```bash\ncp config.example.json config.json\n```\n\n按需修改 `config.json`：\n- `browser.headless`: 建议第一阶段设为 `false`，便于观察和调试\n- `browser.profile_dir`: 浏览器登录状态保存目录（默认 `data/browser_profile`）\n\n## 3. 运行脚本\n\n```bash\npython main.py\n```\n\n或指定配置文件：\n\n```bash\npython main.py --config config.json\n```\n\n## 4. 首次手动登录流程\n\n1. 脚本会打开 Chromium 浏览器。\n2. 如果检测到未登录，会提示你手动登录。\n3. 登录完成后，回到终端按回车，脚本继续执行筛选与查询。\n\n## 5. 如何确认登录状态已复用\n\n- 关闭脚本后再次运行 `python main.py`\n- 如果不再要求重新登录，说明 `data/browser_profile` 中的状态已被复用\n\n## 6. 页面元素调试方法（定位失败时）\n\n如果日志出现 `TODO` 提示，请按下面步骤检查：\n\n1. 打开浏览器开发者工具，确认筛选标签文本是否与以下完全一致：\n   - 活动大类\n   - 活动小类\n   - 小类子类\n   - 活动状态\n2. 检查下拉框组件类型（例如 Ant Design / Element）\n3. 根据实际 DOM，在 `selectors.py` 中补充：\n   - `FORM_ITEM_SELECTORS`\n   - `DROPDOWN_TRIGGER_SELECTORS`\n   - `DROPDOWN_OPTION_SELECTORS`\n   - `RESULT_ROW_SELECTORS`\n\n可使用 Playwright 录制辅助定位：\n\n```bash\nplaywright codegen https://v.ruc.edu.cn/campus#/search\n```\n\n## 7. 说明\n\n- 本项目不自动输入账号密码和验证码\n- 本项目不做验证码识别/绕过\n- 本项目不自动报名\n```\n\n4. 运行步骤\n1. 创建虚拟环境并安装依赖：\n```bash\npython3 -m venv .venv\nsource .venv/bin/activate\npip install -r requirements.txt\nplaywright install chromium\n```\n2. 生成配置文件：\n```bash\ncp config.example.json config.json\n```\n3. 运行：\n```bash\npython main.py\n```\n4. 首次运行时在弹出的浏览器里手动登录，回终端按回车继续。\n5. 观察终端输出的活动标题/状态/时间。\n6. 我已做过语法检查：\n```bash\npython -m py_compile main.py monitor.py models.py selectors.py\n```\n\n5. 目前哪些地方可能需要你手动调试页面元素\n- 四个筛选标签文字如果与页面实际不完全一致，需要改 `selectors.py` 的 `FILTER_CONFIG`。\n- 下拉框组件结构如果不是当前兼容的几类，需要补 `FORM_ITEM_SELECTORS` 和 `DROPDOWN_TRIGGER_SELECTORS`。\n- 下拉选项节点结构如果不匹配，需要补 `DROPDOWN_OPTION_SELECTORS`。\n- “查询”按钮如果不是按钮角色或文字不是“查询”，需要调整 `QUERY_BUTTON_TEXT` 或点击逻辑。\n- 结果列表如果不是 `table/list/card` 这些常见结构，需要补 `RESULT_ROW_SELECTORS`。\n- 标题/状态/时间提取规则如果和实际行文本不一致，需要补 `TITLE_CANDIDATE_SELECTORS` 或状态关键词、时间正则。",
+          "timestamp": "2026-03-17T11:38:12.004Z"
+        },
+        {
+          "type": "user",
+          "text": "<environment_context>\n  <shell>zsh</shell>\n  <current_date>2026-03-18</current_date>\n  <timezone>Asia/Shanghai</timezone>\n</environment_context>",
+          "timestamp": "2026-03-18T02:36:26.432Z"
+        },
+        {
+          "type": "user",
+          "text": "AttributeError: module 'selectors' has no attribute 'SelectSelector' (consider renaming '/home/yuxuan/Desktop/study/2th/LectureMonitor/selectors.py' since it has the same name as the standard library module named 'selectors' and prevents importing that standard library module)",
+          "timestamp": "2026-03-18T02:36:26.435Z"
+        },
+        {
+          "type": "assistant",
+          "text": "你这个报错定位得很准：我们本地的 `selectors.py` 覆盖了 Python 标准库 `selectors`。我现在会把这个文件重命名，并同步修改引用，避免命名冲突。",
+          "timestamp": "2026-03-18T02:36:33.022Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "mv selectors.py page_selectors.py"
+          },
+          "timestamp": "2026-03-18T02:36:33.023Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "rg -n \"\\bselectors\\b|selectors.py|page_selectors\" main.py monitor.py README.md"
+          },
+          "timestamp": "2026-03-18T02:36:33.025Z"
+        },
+        {
+          "type": "assistant",
+          "text": "我正在把代码里的引用全部切到 `page_selectors.py`，并同步更新 README 的调试说明，随后做一次语法检查确认可运行。",
+          "timestamp": "2026-03-18T02:36:38.988Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: monitor.py\n@@\n-from models import Activity\n-import selectors\n+from models import Activity\n+import page_selectors as selectors\n@@\n-        logging.error(\"调试建议：若页面使用了新组件，请在 selectors.py 中补充容器与选项选择器。\")\n+        logging.error(\"调试建议：若页面使用了新组件，请在 page_selectors.py 中补充容器与选项选择器。\")\n@@\n-        logging.warning(\"调试建议：检查列表是 table 还是 card，并在 selectors.py 的 RESULT_ROW_SELECTORS 中补充。\")\n+        logging.warning(\"调试建议：检查列表是 table 还是 card，并在 page_selectors.py 的 RESULT_ROW_SELECTORS 中补充。\")\n*** End Patch\n",
+          "timestamp": "2026-03-18T02:36:42.159Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: README.md\n@@\n-3. 根据实际 DOM，在 `selectors.py` 中补充：\n+3. 根据实际 DOM，在 `page_selectors.py` 中补充：\n*** End Patch\n",
+          "timestamp": "2026-03-18T02:36:45.547Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "rg -n \"selectors.py|import selectors\\b|\\bselectors\\b\" main.py monitor.py README.md page_selectors.py"
+          },
+          "timestamp": "2026-03-18T02:36:50.464Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "python -m py_compile main.py monitor.py models.py page_selectors.py"
+          },
+          "timestamp": "2026-03-18T02:36:53.654Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "ls -la"
+          },
+          "timestamp": "2026-03-18T02:36:58.389Z"
+        },
+        {
+          "type": "assistant",
+          "text": "我再清理一下可能残留的旧 `selectors` 缓存文件，避免 Python 继续误加载旧模块。",
+          "timestamp": "2026-03-18T02:37:13.833Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "find __pycache__ -type f -name '*selectors*' -print -delete"
+          },
+          "timestamp": "2026-03-18T02:37:14.028Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "python -m py_compile main.py monitor.py models.py page_selectors.py && ls __pycache__"
+          },
+          "timestamp": "2026-03-18T02:37:18.040Z"
+        },
+        {
+          "type": "assistant",
+          "text": "你这个报错已经修好，原因确实是模块命名冲突。\n\n已做修改：\n- 把 `selectors.py` 重命名为 `page_selectors.py`\n- 更新 `monitor.py` 的导入：\n  - `import page_selectors as selectors`\n- 更新 `README.md` 中相关说明\n- 清理了旧的 `__pycache__/selectors*.pyc` 缓存\n- 重新做了语法检查：`python -m py_compile main.py monitor.py models.py page_selectors.py`（通过）\n\n你现在直接重跑：\n```bash\npython main.py\n```\n\n如果你愿意，我下一步可以帮你把“首次运行自动检测并提示配置文件缺失”的报错信息再做得更友好一点。",
+          "timestamp": "2026-03-18T02:37:25.580Z"
+        },
+        {
+          "type": "user",
+          "text": "筛选失败，我去看了一下，网页选框的格式大概是这样的\n<image>\n</image>",
+          "timestamp": "2026-03-18T02:47:55.860Z"
+        },
+        {
+          "type": "user",
+          "text": "<turn_aborted>\nThe user interrupted the previous turn on purpose. Any running unified exec processes were terminated. If any tools/commands were aborted, they may have partially executed; verify current state before retrying.\n</turn_aborted>",
+          "timestamp": "2026-03-18T02:48:48.131Z"
+        },
+        {
+          "type": "user",
+          "text": "筛选失败，我去看了一下，网页选框的格式大概是这样的",
+          "timestamp": "2026-03-18T02:48:54.946Z"
+        },
+        {
+          "type": "user",
+          "text": "<turn_aborted>\nThe user interrupted the previous turn on purpose. Any running unified exec processes were terminated. If any tools/commands were aborted, they may have partially executed; verify current state before retrying.\n</turn_aborted>",
+          "timestamp": "2026-03-18T02:48:56.766Z"
+        },
+        {
+          "type": "user",
+          "text": "筛选失败，我看了一下网页端格式大概是这样\n<image>\n</image>",
+          "timestamp": "2026-03-18T02:49:21.506Z"
+        },
+        {
+          "type": "user",
+          "text": "<turn_aborted>\nThe user interrupted the previous turn on purpose. Any running unified exec processes were terminated. If any tools/commands were aborted, they may have partially executed; verify current state before retrying.\n</turn_aborted>",
+          "timestamp": "2026-03-18T02:50:19.877Z"
+        },
+        {
+          "type": "user",
+          "text": "目前筛选失败，我把网页端的部分代码复制过来了，查看target.html的代码，修改筛选逻辑",
+          "timestamp": "2026-03-18T03:01:02.146Z"
+        },
+        {
+          "type": "user",
+          "text": "<turn_aborted>\nThe user interrupted the previous turn on purpose. Any running unified exec processes may still be running in the background. If any tools/commands were aborted, they may have partially executed; verify current state before retrying.\n</turn_aborted>",
+          "timestamp": "2026-03-18T03:02:05.746Z"
+        },
+        {
+          "type": "user",
+          "text": "目前筛选失败，我把网页端的部分代码复制过来了，查看target.html的代码，修改筛选逻辑",
+          "timestamp": "2026-03-18T03:07:38.096Z"
+        },
+        {
+          "type": "user",
+          "text": "<turn_aborted>\nThe user interrupted the previous turn on purpose. Any running unified exec processes may still be running in the background. If any tools/commands were aborted, they may have partially executed; verify current state before retrying.\n</turn_aborted>",
+          "timestamp": "2026-03-18T03:07:58.832Z"
+        },
+        {
+          "type": "user",
+          "text": "目前筛选失败，我把网页端的部分代码复制过来了，查看target.html的代码，修改筛选逻辑",
+          "timestamp": "2026-03-18T03:09:43.866Z"
+        },
+        {
+          "type": "user",
+          "text": "<turn_aborted>\nThe user interrupted the previous turn on purpose. Any running unified exec processes may still be running in the background. If any tools/commands were aborted, they may have partially executed; verify current state before retrying.\n</turn_aborted>",
+          "timestamp": "2026-03-18T03:10:30.299Z"
+        },
+        {
+          "type": "user",
+          "text": "目前筛选失败，我把网页端的部分代码复制过来了，查看target.html的代码，修改筛选逻辑",
+          "timestamp": "2026-03-18T03:20:55.307Z"
+        },
+        {
+          "type": "assistant",
+          "text": "我会先读取你提到的 `target.html`，定位筛选区域的真实 DOM 结构，然后只修改筛选相关逻辑（不动其他阶段功能）。接下来我先比对当前代码和 `target.html` 的差异点。",
+          "timestamp": "2026-03-18T03:21:05.541Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "ls -la"
+          },
+          "timestamp": "2026-03-18T03:21:05.542Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "rg --files"
+          },
+          "timestamp": "2026-03-18T03:21:05.542Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "rg -n \"dropdown|campus-search|活动大类|活动小类|小类子类|活动状态\" target.html monitor.py page_selectors.py README.md"
+          },
+          "timestamp": "2026-03-18T03:21:05.543Z"
+        },
+        {
+          "type": "assistant",
+          "text": "我看到了 `target.html` 里是 `p.campus-search-p + dropdown-box-md + ul.dropdown-menu` 这一套结构，我会按这个结构新增一条优先定位策略：先按标签找筛选块，再点块内 `a.dropdown-toggle`，最后只在该块对应的 `ul.dropdown-menu` 里点目标选项。马上改代码。",
+          "timestamp": "2026-03-18T03:21:28.268Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "sed -n '1,220p' target.html"
+          },
+          "timestamp": "2026-03-18T03:21:28.295Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "sed -n '1,240p' monitor.py"
+          },
+          "timestamp": "2026-03-18T03:21:38.299Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "sed -n '240,380p' monitor.py"
+          },
+          "timestamp": "2026-03-18T03:21:38.303Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "cat page_selectors.py"
+          },
+          "timestamp": "2026-03-18T03:21:38.329Z"
+        },
+        {
+          "type": "assistant",
+          "text": "我会保留你现有的多策略方案，但把“基于 `target.html` 的校园搜索块策略”放到第一优先级：按 `p.campus-search-p` 找对应筛选块，再在同一块里点击下拉和选项，避免误点到其他筛选框。现在开始改 `page_selectors.py` 和 `monitor.py`。",
+          "timestamp": "2026-03-18T03:22:20.714Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: page_selectors.py\n@@\n QUERY_BUTTON_TEXT = \"查询\"\n \n+# campus 页面当前结构（来自 target.html）\n+CAMPUS_FILTER_BLOCK_SELECTOR = \"div.col-xs-6.col-sm-6.col-md-3\"\n+CAMPUS_FILTER_LABEL_SELECTOR = \"p.campus-search-p\"\n+CAMPUS_FILTER_TOGGLE_SELECTORS = [\n+    \"div.dropdown-box-md a.dropdown-toggle\",\n+    \"div.dropdown-box-md a.sl-header-dd\",\n+]\n+CAMPUS_FILTER_OPTION_SELECTOR = \"div.dropdown-box-md ul.dropdown-menu a\"\n+\n # 常见 UI 库中的“筛选项容器”，用于在 label 附近查找下拉框触发器\n FORM_ITEM_SELECTORS = [\n@@\n RESULT_ROW_SELECTORS = [\n+    \".serv-list .row.list-show\",\n+    \".search-list .row.list-show\",\n     \"table tbody tr\",\n     \".ant-table-tbody > tr\",\n     \".el-table__body-wrapper tbody tr\",\n*** End Patch\n",
+          "timestamp": "2026-03-18T03:22:25.132Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: monitor.py\n@@\n     def _set_single_filter(self, page: Page, label: str, option: str) -> bool:\n         \"\"\"设置单个筛选项，使用多种稳健定位策略。\"\"\"\n+        if self._set_filter_in_campus_block(page, label, option):\n+            return True\n+\n         if self._open_dropdown_by_role(page, label) and self._click_dropdown_option(page, option):\n             return True\n@@\n         if self._open_dropdown_by_label_text(page, label) and self._click_dropdown_option(page, option):\n             return True\n \n         return False\n+\n+    def _set_filter_in_campus_block(self, page: Page, label: str, option: str) -> bool:\n+        \"\"\"策略 0：按 target.html 的搜索区块结构定位并选择。\"\"\"\n+        label_match = page.locator(selectors.CAMPUS_FILTER_LABEL_SELECTOR, has_text=label)\n+        blocks = page.locator(selectors.CAMPUS_FILTER_BLOCK_SELECTOR).filter(has=label_match)\n+        if blocks.count() == 0:\n+            return False\n+\n+        block = blocks.first\n+        toggle_selector = \", \".join(selectors.CAMPUS_FILTER_TOGGLE_SELECTORS)\n+        toggles = block.locator(toggle_selector)\n+        if toggles.count() == 0:\n+            return False\n+\n+        try:\n+            toggles.first.click(timeout=self.ui_wait_ms)\n+        except PlaywrightTimeoutError:\n+            return False\n+\n+        # 优先精确匹配，避免“形势与政策”误点“形势与政策讲座”\n+        exact_option = block.locator(selectors.CAMPUS_FILTER_OPTION_SELECTOR).filter(\n+            has_text=re.compile(rf\"^\\\\s*{re.escape(option)}\\\\s*$\")\n+        )\n+        if exact_option.count() > 0:\n+            try:\n+                exact_option.first.click(timeout=self.ui_wait_ms)\n+                return True\n+            except PlaywrightTimeoutError:\n+                return False\n+\n+        fuzzy_option = block.locator(selectors.CAMPUS_FILTER_OPTION_SELECTOR).filter(has_text=option)\n+        if fuzzy_option.count() == 0:\n+            return False\n+\n+        try:\n+            fuzzy_option.first.click(timeout=self.ui_wait_ms)\n+            return True\n+        except PlaywrightTimeoutError:\n+            return False\n*** End Patch\n",
+          "timestamp": "2026-03-18T03:22:39.816Z"
+        },
+        {
+          "type": "assistant",
+          "text": "我已经把新策略加到筛选逻辑最前面，并且做了“精确匹配优先”来避免“形势与政策”误选“形势与政策讲座”。我现在做一次语法检查，确认修改可运行。",
+          "timestamp": "2026-03-18T03:22:58.205Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "python -m py_compile main.py monitor.py models.py page_selectors.py"
+          },
+          "timestamp": "2026-03-18T03:22:58.206Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "rg -n \"_set_filter_in_campus_block|CAMPUS_FILTER|RESULT_ROW_SELECTORS\" monitor.py page_selectors.py"
+          },
+          "timestamp": "2026-03-18T03:22:58.207Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "nl -ba monitor.py | sed -n '80,170p'"
+          },
+          "timestamp": "2026-03-18T03:23:16.337Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "nl -ba page_selectors.py | sed -n '1,90p'"
+          },
+          "timestamp": "2026-03-18T03:23:16.337Z"
+        },
+        {
+          "type": "assistant",
+          "text": "已按 `target.html` 的结构改完筛选逻辑，核心是“在同一个筛选块内完成下拉与选项点击”，避免跨区域误点。\n\n修改点：\n- 新增 campus 页面的专用选择器常量：[page_selectors.py](/home/yuxuan/Desktop/study/2th/LectureMonitor/page_selectors.py#L17)\n- 筛选时优先使用新策略 `_set_filter_in_campus_block`：[monitor.py](/home/yuxuan/Desktop/study/2th/LectureMonitor/monitor.py#L104)\n- 新策略流程：\n  - 按 `p.campus-search-p` 文本定位筛选块\n  - 在该块点击 `a.dropdown-toggle/sl-header-dd`\n  - 仅在该块内 `ul.dropdown-menu a` 选择目标项\n  - 先精确匹配再模糊匹配，避免“形势与政策”误选“形势与政策讲座”\n- 顺便补了结果列表常见行选择器（`row list-show`）：[page_selectors.py](/home/yuxuan/Desktop/study/2th/LectureMonitor/page_selectors.py#L54)\n\n已做检查：\n- `python -m py_compile main.py monitor.py models.py page_selectors.py` 通过。\n\n请直接重试：\n```bash\npython main.py\n```\n\n如果仍失败，把 `logs/monitor.log` 最新 50 行贴我，我继续按你当前页面 DOM 精调。",
+          "timestamp": "2026-03-18T03:23:35.387Z"
+        },
+        {
+          "type": "user",
+          "text": "成功了，接下来阅读project_spec.md并完成阶段二的任务",
+          "timestamp": "2026-03-18T10:44:06.819Z"
+        },
+        {
+          "type": "assistant",
+          "text": "很好，我们继续按规格推进到第二阶段。我先重新读取 `PROJ********C.md` 的第二阶段要求，并检查当前代码结构，然后只实现“本地 JSON 历史记录 + 新活动识别 + 终端分类输出”。",
+          "timestamp": "2026-03-18T10:44:21.519Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "rg -n \"第二阶段|历史记录|变化检测|新活动|普通活动\" PROJECT_SPEC.md"
+          },
+          "timestamp": "2026-03-18T10:44:21.525Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "ls -la"
+          },
+          "timestamp": "2026-03-18T10:44:21.525Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "sed -n '1,220p' main.py && sed -n '1,260p' monitor.py"
+          },
+          "timestamp": "2026-03-18T10:44:21.525Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "sed -n '260,380p' monitor.py"
+          },
+          "timestamp": "2026-03-18T10:44:31.678Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "sed -n '232,280p' PROJECT_SPEC.md"
+          },
+          "timestamp": "2026-03-18T10:44:38.458Z"
+        },
+        {
+          "type": "assistant",
+          "text": "我已经确认第二阶段只需要“历史记录 + 新活动检测 + 终端分类输出”。  \n接下来按这个计划执行：\n\n1. 新增 `storage.py`  \n- 读写 `data/seen_activities.json`  \n- 以“标题 + 时间”生成稳定唯一键  \n- 对比当前活动与历史记录，分出“普通活动/新活动”  \n- 更新并保存最新快照（保留首次见到时间、更新最后见到时间和状态）\n\n2. 修改 `models.py`  \n- 给 `Activity` 增加一个简单的唯一键方法，避免主流程里重复拼接逻辑\n\n3. 修改 `main.py`  \n- 接入 `ActivityStorage`  \n- 改成阶段二输出：`新活动` 与 `普通活动` 两个分组  \n- 保留原有第一阶段流程（登录复用、筛选、查询、解析）\n\n4. 更新 `README.md`  \n- 标注当前已到第二阶段  \n- 增加 `data/seen_activities.json` 的说明与首次运行行为说明\n\n我现在开始改文件。",
+          "timestamp": "2026-03-18T10:45:22.543Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "update_plan",
+          "input": {
+            "explanation": "严格只做第二阶段，不加入邮件通知与定时调度。",
+            "plan": [
+              {
+                "status": "in_progress",
+                "step": "新增历史记录存储模块（JSON 读写 + 新活动识别）"
+              },
+              {
+                "status": "pending",
+                "step": "接入主流程并输出普通活动/新活动"
+              },
+              {
+                "status": "pending",
+                "step": "更新 README 的第二阶段说明"
+              },
+              {
+                "status": "pending",
+                "step": "语法检查与结果验证"
+              }
+            ]
+          },
+          "timestamp": "2026-03-18T10:45:24.272Z"
+        },
+        {
+          "type": "assistant",
+          "text": "我现在开始落地阶段二代码：先加 `storage.py` 和 `Activity` 的唯一键方法，再把 `main.py` 的输出改成“新活动/普通活动”两组。改完会立即做语法检查。",
+          "timestamp": "2026-03-18T10:45:48.429Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: models.py\n@@\n from dataclasses import dataclass\n \n \n @dataclass\n class Activity:\n@@\n     title: str\n     status: str\n     time_text: str\n+\n+    def unique_key(self) -> str:\n+        \"\"\"生成活动唯一键（阶段二用于历史记录去重）。\"\"\"\n+        safe_title = self.title.strip()\n+        safe_time = self.time_text.strip()\n+        return f\"{safe_title}||{safe_time}\"\n*** End Patch\n",
+          "timestamp": "2026-03-18T10:45:50.422Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "cat > storage.py <<'EOF'\nimport json\nimport logging\nfrom datetime import datetime\nfrom pathlib import Path\nfrom typing import Any, Optional\n\nfrom models import Activity\n\n\nclass ActivityStorage:\n    \"\"\"负责读取/写入已见活动，并识别新活动。\"\"\"\n\n    def __init__(self, file_path: str | Path = \"data/seen_activities.json\"):\n        self.file_path = Path(file_path)\n        self.file_path.parent.mkdir(parents=True, exist_ok=True)\n\n    def classify_and_update(self, activities: list[Activity]) -> tuple[list[Activity], list[Activity]]:\n        \"\"\"将本次活动分成普通活动与新活动，并更新本地 JSON 记录。\"\"\"\n        records = self._load_records()\n        ordinary_activities: list[Activity] = []\n        new_activities: list[Activity] = []\n\n        seen_at = datetime.now().isoformat(timespec=\"seconds\")\n        for activity in activities:\n            key = activity.unique_key()\n            existing = records.get(key)\n\n            if existing is None:\n                new_activities.append(activity)\n            else:\n                ordinary_activities.append(activity)\n\n            records[key] = self._build_record(activity, existing, seen_at)\n\n        self._save_records(records)\n        logging.info(\n            \"历史记录已更新：%s（当前累计 %d 条）\",\n            self.file_path,\n            len(records),\n        )\n\n        return ordinary_activities, new_activities\n\n    def _load_records(self) -> dict[str, dict[str, Any]]:\n        if not self.file_path.exists():\n            return {}\n\n        try:\n            with self.file_path.open(\"r\", encoding=\"utf-8\") as file:\n                data = json.load(file)\n        except json.JSONDecodeError:\n            logging.warning(\"历史记录 JSON 格式损坏，将按空记录处理：%s\", self.file_path)\n            return {}\n        except OSError as exc:\n            logging.warning(\"读取历史记录失败，将按空记录处理：%s\", exc)\n            return {}\n\n        if not isinstance(data, dict):\n            logging.warning(\"历史记录格式不是对象，将按空记录处理：%s\", self.file_path)\n            return {}\n\n        return data\n\n    def _save_records(self, records: dict[str, dict[str, Any]]) -> None:\n        with self.file_path.open(\"w\", encoding=\"utf-8\") as file:\n            json.dump(records, file, ensure_ascii=False, indent=2)\n\n    def _build_record(\n        self,\n        activity: Activity,\n        existing: Optional[dict[str, Any]],\n        seen_at: str,\n    ) -> dict[str, Any]:\n        first_seen_at = seen_at\n        if isinstance(existing, dict) and existing.get(\"first_seen_at\"):\n            first_seen_at = str(existing[\"first_seen_at\"])\n\n        return {\n            \"title\": activity.title,\n            \"status\": activity.status,\n            \"time_text\": activity.time_text,\n            \"first_seen_at\": first_seen_at,\n            \"last_seen_at\": seen_at,\n        }\nEOF"
+          },
+          "timestamp": "2026-03-18T10:46:09.343Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: main.py\n@@\n import argparse\n import json\n import logging\n from pathlib import Path\n \n+from models import Activity\n from monitor import LectureMonitor\n+from storage import ActivityStorage\n@@\n def parse_args() -> argparse.Namespace:\n-    parser = argparse.ArgumentParser(description=\"RUC 讲座监控（第一阶段最小可运行版本）\")\n+    parser = argparse.ArgumentParser(description=\"RUC 讲座监控（第二阶段：历史记录与变化检测）\")\n     parser.add_argument(\n         \"--config\",\n         default=\"config.json\",\n         help=\"配置文件路径，默认: config.json\",\n     )\n     return parser.parse_args()\n \n \n+def print_activity_group(group_name: str, activities: list[Activity]) -> None:\n+    \"\"\"按分组打印活动信息。\"\"\"\n+    print(f\"\\n--- {group_name}（{len(activities)}）---\")\n+    if not activities:\n+        print(\"无\")\n+        return\n+\n+    for index, activity in enumerate(activities, start=1):\n+        print(f\"{index}. 标题: {activity.title}\")\n+        print(f\"   状态: {activity.status}\")\n+        print(f\"   时间: {activity.time_text}\")\n+\n+\n def main() -> None:\n     args = parse_args()\n     setup_logging()\n \n     try:\n         config = load_config(Path(args.config))\n         monitor = LectureMonitor(config)\n         activities = monitor.run_once()\n+        storage = ActivityStorage()\n+        ordinary_activities, new_activities = storage.classify_and_update(activities)\n \n-        print(\"\\n===== 当前活动列表 =====\")\n+        print(\"\\n===== 本次活动检测结果 =====\")\n         if not activities:\n             print(\"未解析到活动（可能是筛选结果为空，或选择器需要调试）。\")\n             return\n \n-        for index, activity in enumerate(activities, start=1):\n-            print(f\"{index}. 标题: {activity.title}\")\n-            print(f\"   状态: {activity.status}\")\n-            print(f\"   时间: {activity.time_text}\")\n+        print_activity_group(\"新活动\", new_activities)\n+        print_activity_group(\"普通活动\", ordinary_activities)\n \n     except Exception as exc:\n         logging.exception(\"运行失败: %s\", exc)\n         raise\n*** End Patch\n",
+          "timestamp": "2026-03-18T10:46:21.050Z"
+        },
+        {
+          "type": "assistant",
+          "text": "主流程已接入历史记录模块，我再把 README 更新到第二阶段说明，确保运行步骤和输出预期与当前代码一致。",
+          "timestamp": "2026-03-18T10:46:24.028Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "cat README.md"
+          },
+          "timestamp": "2026-03-18T10:46:24.426Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: README.md\n@@\n-# RUC 形势与政策讲座监控脚本（第一阶段）\n+# RUC 形势与政策讲座监控脚本（第二阶段）\n \n-当前仅实现 **第一阶段：最小可运行版本**。\n+当前实现到 **第二阶段：历史记录与变化检测**。\n \n 已实现内容：\n - Playwright 持久化浏览器上下文（复用登录状态）\n - 首次可手动登录\n - 自动设置四个筛选条件\n - 点击“查询”\n-- 终端打印活动标题 / 状态 / 时间\n+- 解析并打印活动标题 / 状态 / 时间\n+- 使用 `data/seen_activities.json` 保存已见活动\n+- 对比本次与历史结果，终端分组输出：\n+  - 新活动\n+  - 普通活动\n \n 未实现内容（后续阶段）：\n-- 历史记录对比\n - 邮件通知\n - 定时循环调度\n@@\n-## 3. 运行脚本\n+## 3. 运行脚本\n@@\n-## 4. 首次手动登录流程\n+## 4. 首次手动登录流程\n@@\n-## 5. 如何确认登录状态已复用\n+## 5. 第二阶段输出说明\n+\n+- 第一次运行时：历史记录为空，通常会把当前活动都判定为“新活动”\n+- 第二次及之后运行：已见过的活动会进入“普通活动”\n+- 历史文件位置：`data/seen_activities.json`\n+\n+## 6. 如何确认登录状态已复用\n \n - 关闭脚本后再次运行 `python main.py`\n - 如果不再要求重新登录，说明 `data/browser_profile` 中的状态已被复用\n \n-## 6. 页面元素调试方法（定位失败时）\n+## 7. 页面元素调试方法（定位失败时）\n@@\n-## 7. 说明\n+## 8. 说明\n*** End Patch\n",
+          "timestamp": "2026-03-18T10:46:38.047Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "[ -f data/seen_activities.json ] || echo '{}' > data/seen_activities.json"
+          },
+          "timestamp": "2026-03-18T10:46:47.245Z"
+        },
+        {
+          "type": "assistant",
+          "text": "README 和数据文件也已经同步到第二阶段。我现在做一次完整自检（语法 + 历史记录模块的最小行为验证），确认阶段二能稳定跑。",
+          "timestamp": "2026-03-18T10:46:58.941Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "python -m py_compile main.py monitor.py models.py storage.py page_selectors.py"
+          },
+          "timestamp": "2026-03-18T10:46:58.945Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "python - <<'PY'\nfrom models import Activity\nfrom storage import ActivityStorage\nfrom pathlib import Path\n\np = Path('data/test_seen_activities.json')\nif p.exists():\n    p.unlink()\n\nstorage = ActivityStorage(p)\nordinary, new = storage.classify_and_update([\n    Activity('A讲座', '未开始', '2026-03-20 10:00:00 至 2026-03-20 11:00:00')\n])\nprint('run1', len(ordinary), len(new))\nordinary, new = storage.classify_and_update([\n    Activity('A讲座', '未开始', '2026-03-20 10:00:00 至 2026-03-20 11:00:00'),\n    Activity('B讲座', '未开始', '2026-03-21 10:00:00 至 2026-03-21 11:00:00')\n])\nprint('run2', len(ordinary), len(new))\np.unlink(missing_ok=True)\nPY"
+          },
+          "timestamp": "2026-03-18T10:46:58.946Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "ls -la data && rg -n \"第二阶段|seen_activities|新活动|普通活动|ActivityStorage\" README.md main.py storage.py"
+          },
+          "timestamp": "2026-03-18T10:46:58.947Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "update_plan",
+          "input": {
+            "explanation": "阶段二已完成：已加入 seen_activities.json 持久化、活动去重识别与分组输出，并完成自检。",
+            "plan": [
+              {
+                "status": "completed",
+                "step": "新增历史记录存储模块（JSON 读写 + 新活动识别）"
+              },
+              {
+                "status": "completed",
+                "step": "接入主流程并输出普通活动/新活动"
+              },
+              {
+                "status": "completed",
+                "step": "更新 README 的第二阶段说明"
+              },
+              {
+                "status": "completed",
+                "step": "语法检查与结果验证"
+              }
+            ]
+          },
+          "timestamp": "2026-03-18T10:47:04.739Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "nl -ba main.py | sed -n '1,150p'"
+          },
+          "timestamp": "2026-03-18T10:47:15.123Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "nl -ba models.py | sed -n '1,80p'"
+          },
+          "timestamp": "2026-03-18T10:47:15.125Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "nl -ba storage.py | sed -n '1,220p'"
+          },
+          "timestamp": "2026-03-18T10:47:15.127Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "nl -ba README.md | sed -n '1,130p'"
+          },
+          "timestamp": "2026-03-18T10:47:15.128Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: README.md\n@@\n-- `browser.headless`: 建议第一阶段设为 `false`，便于观察和调试\n+- `browser.headless`: 建议调试时设为 `false`，便于观察和调试\n*** End Patch\n",
+          "timestamp": "2026-03-18T10:47:23.231Z"
+        },
+        {
+          "type": "assistant",
+          "text": "第二阶段已完成，并且只实现了阶段二范围（未加入邮件、定时等后续功能）。\n\n**已完成内容**\n- 新增本地历史记录模块，使用 JSON 保存已见活动并识别新活动。\n- 主流程已接入历史记录比对。\n- 终端输出改为两组：`新活动`、`普通活动`。\n- 自动维护 `data/seen_activities.json`。\n\n**关键改动**\n- 新增 [storage.py](/home/yuxuan/Desktop/study/2th/LectureMonitor/storage.py#L1)\n  - `ActivityStorage.classify_and_update()`：对比本次活动与历史记录并写回 JSON。\n- 修改 [models.py](/home/yuxuan/Desktop/study/2th/LectureMonitor/models.py#L12)\n  - `Activity.unique_key()`：用“标题 + 时间”生成去重键。\n- 修改 [main.py](/home/yuxuan/Desktop/study/2th/LectureMonitor/main.py#L47)\n  - 接入 `ActivityStorage`，分组打印“新活动/普通活动”。\n- 修改 [README.md](/home/yuxuan/Desktop/study/2th/LectureMonitor/README.md#L1)\n  - 更新为第二阶段说明与输出行为说明。\n- 新建/初始化 `data/seen_activities.json`。\n\n**自检结果**\n- 语法检查通过：`python -m py_compile main.py monitor.py models.py storage.py page_selectors.py`\n- 历史记录逻辑最小验证通过：\n  - 第一次：`run1 0 1`\n  - 第二次：`run2 1 1`\n\n**你现在可以直接运行**\n```bash\npython main.py\n```\n首次通常会把当前结果都判定为“新活动”；后续运行会把已见过的归到“普通活动”。",
+          "timestamp": "2026-03-18T10:47:43.698Z"
+        },
+        {
+          "type": "user",
+          "text": "第二阶段实现没有问题，接下来继续实现第三阶段的任务",
+          "timestamp": "2026-03-18T11:05:28.504Z"
+        },
+        {
+          "type": "assistant",
+          "text": "很棒，第三阶段我会只做这三件事：读取 SMTP 配置、新增邮件发送模块、仅在“新活动”时发邮件并记录发送失败日志。先快速检查当前配置与主流程接入点，然后开始改代码。",
+          "timestamp": "2026-03-18T11:05:49.509Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "ls -la && rg -n \"email|SMTP|新活动|ActivityStorage|print_activity_group|README|第二阶段\" main.py storage.py config.example.json config.json README.md PROJECT_SPEC.md"
+          },
+          "timestamp": "2026-03-18T11:05:49.514Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "cat config.example.json && echo '---' && cat config.json"
+          },
+          "timestamp": "2026-03-18T11:05:49.515Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "cat config.json"
+          },
+          "timestamp": "2026-03-18T11:05:53.194Z"
+        },
+        {
+          "type": "assistant",
+          "text": "我发现当前项目里 `config.example.json` 不在了，所以我会在这次一起补回并加入 `email` 模板。现在开始新增 `notifier.py` 并接入 `main.py`，实现“仅新活动发邮件 + 失败日志”。",
+          "timestamp": "2026-03-18T11:06:16.209Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "cat > notifier.py <<'EOF'\nimport logging\nimport smtplib\nfrom datetime import datetime\nfrom email.message import EmailMessage\nfrom typing import Any\n\nfrom models import Activity\n\n\nclass EmailNotifier:\n    \"\"\"SMTP 邮件通知器（第三阶段）。\"\"\"\n\n    def __init__(self, email_config: dict[str, Any] | None):\n        self.email_config = email_config or {}\n\n    def notify_new_activities(self, activities: list[Activity]) -> bool:\n        \"\"\"仅在存在新活动时发送提醒邮件。\"\"\"\n        if not activities:\n            logging.info(\"本次无新活动，不发送邮件。\")\n            return True\n\n        ok, missing_fields = self._validate_config()\n        if not ok:\n            logging.warning(\n                \"邮件配置不完整，已跳过发送。缺少字段: %s\",\n                \", \".join(missing_fields),\n            )\n            return False\n\n        message = self._build_message(activities)\n\n        smtp_host = str(self.email_config.get(\"smtp_host\"))\n        smtp_port = int(self.email_config.get(\"smtp_port\", 465))\n        sender = str(self.email_config.get(\"sender\"))\n        password = str(self.email_config.get(\"password\"))\n        use_ssl = bool(self.email_config.get(\"use_ssl\", True))\n\n        try:\n            if use_ssl:\n                with smtplib.SMTP_SSL(smtp_host, smtp_port, timeout=20) as smtp:\n                    smtp.login(sender, password)\n                    smtp.send_message(message)\n            else:\n                with smtplib.SMTP(smtp_host, smtp_port, timeout=20) as smtp:\n                    smtp.ehlo()\n                    if bool(self.email_config.get(\"use_starttls\", True)):\n                        smtp.starttls()\n                        smtp.ehlo()\n                    smtp.login(sender, password)\n                    smtp.send_message(message)\n\n            logging.info(\"新活动提醒邮件发送成功，共 %d 条。\", len(activities))\n            return True\n\n        except (smtplib.SMTPException, OSError, TimeoutError) as exc:\n            logging.exception(\"新活动提醒邮件发送失败: %s\", exc)\n            return False\n\n    def _validate_config(self) -> tuple[bool, list[str]]:\n        required_fields = [\n            \"smtp_host\",\n            \"smtp_port\",\n            \"sender\",\n            \"password\",\n            \"receiver\",\n        ]\n\n        missing_fields: list[str] = []\n        for field in required_fields:\n            value = self.email_config.get(field)\n            if value is None or str(value).strip() == \"\":\n                missing_fields.append(field)\n\n        return len(missing_fields) == 0, missing_fields\n\n    def _build_message(self, activities: list[Activity]) -> EmailMessage:\n        sender = str(self.email_config.get(\"sender\"))\n        receiver = str(self.email_config.get(\"receiver\"))\n        now_text = datetime.now().strftime(\"%Y-%m-%d %H:%M:%S\")\n\n        message = EmailMessage()\n        message[\"From\"] = sender\n        message[\"To\"] = receiver\n        message[\"Subject\"] = f\"[LectureMonitor] 发现 {len(activities)} 个新活动\"\n\n        body_lines = [\n            \"检测到新的“形势与政策讲座”相关活动：\",\n            f\"检测时间：{now_text}\",\n            \"\",\n        ]\n\n        for index, activity in enumerate(activities, start=1):\n            body_lines.append(f\"{index}. 标题：{activity.title}\")\n            body_lines.append(f\"   状态：{activity.status}\")\n            body_lines.append(f\"   时间：{activity.time_text}\")\n            body_lines.append(\"\")\n\n        message.set_content(\"\\n\".join(body_lines))\n        return message\nEOF"
+          },
+          "timestamp": "2026-03-18T11:06:33.463Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: main.py\n@@\n from pathlib import Path\n \n from models import Activity\n from monitor import LectureMonitor\n+from notifier import EmailNotifier\n from storage import ActivityStorage\n@@\n def parse_args() -> argparse.Namespace:\n-    parser = argparse.ArgumentParser(description=\"RUC 讲座监控（第二阶段：历史记录与变化检测）\")\n+    parser = argparse.ArgumentParser(description=\"RUC 讲座监控（第三阶段：邮件通知）\")\n@@\n         activities = monitor.run_once()\n         storage = ActivityStorage()\n         ordinary_activities, new_activities = storage.classify_and_update(activities)\n+        notifier = EmailNotifier(config.get(\"email\"))\n \n         print(\"\\n===== 本次活动检测结果 =====\")\n         if not activities:\n             print(\"未解析到活动（可能是筛选结果为空，或选择器需要调试）。\")\n             return\n \n         print_activity_group(\"新活动\", new_activities)\n         print_activity_group(\"普通活动\", ordinary_activities)\n+\n+        # 第三阶段：只在发现新活动时发送邮件\n+        if new_activities:\n+            notifier.notify_new_activities(new_activities)\n+        else:\n+            logging.info(\"本次没有新活动，不触发邮件通知。\")\n*** End Patch\n",
+          "timestamp": "2026-03-18T11:06:40.818Z"
+        },
+        {
+          "type": "assistant",
+          "text": "我已经把 `notifier.py` 和主流程接入完成了。接下来会补齐 `config.example.json` 的邮件配置模板，并把 README 升级到第三阶段说明（尤其是“用邮箱授权码，不用登录密码”）。",
+          "timestamp": "2026-03-18T11:06:52.625Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "cat > config.example.json <<'EOF'\n{\n  \"url\": \"https://v.ruc.edu.cn/campus#/search\",\n  \"browser\": {\n    \"headless\": false,\n    \"slow_mo_ms\": 100,\n    \"profile_dir\": \"data/browser_profile\"\n  },\n  \"timeouts\": {\n    \"page_load_ms\": 30000,\n    \"ui_wait_ms\": 8000\n  },\n  \"email\": {\n    \"smtp_host\": \"smtp.example.com\",\n    \"smtp_port\": 465,\n    \"sender\": \"your_email@example.com\",\n    \"password\": \"your_app_password\",\n    \"receiver\": \"your_email@example.com\",\n    \"use_ssl\": true\n  }\n}\nEOF"
+          },
+          "timestamp": "2026-03-18T11:06:55.286Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: README.md\n@@\n-# RUC 形势与政策讲座监控脚本（第二阶段）\n+# RUC 形势与政策讲座监控脚本（第三阶段）\n \n-当前实现到 **第二阶段：历史记录与变化检测**。\n+当前实现到 **第三阶段：邮件通知**。\n@@\n - 解析并打印活动标题 / 状态 / 时间\n - 使用 `data/seen_activities.json` 保存已见活动\n - 对比本次与历史结果，终端分组输出：\n   - 新活动\n   - 普通活动\n+- 检测到“新活动”时，通过 SMTP 发送邮件提醒\n+- 邮件发送失败会记录错误日志\n \n 未实现内容（后续阶段）：\n-- 邮件通知\n - 定时循环调度\n@@\n-按需修改 `config.json`：\n+按需修改 `config.json`：\n - `browser.headless`: 建议调试时设为 `false`，便于观察和调试\n - `browser.profile_dir`: 浏览器登录状态保存目录（默认 `data/browser_profile`）\n+- `email`：SMTP 发件配置（第三阶段新增）\n+\n+邮件配置示例：\n+\n+```json\n+\"email\": {\n+  \"smtp_host\": \"smtp.example.com\",\n+  \"smtp_port\": 465,\n+  \"sender\": \"your_email@example.com\",\n+  \"password\": \"your_app_password\",\n+  \"receiver\": \"your_email@example.com\",\n+  \"use_ssl\": true\n+}\n+```\n+\n+注意：\n+- `password` 请填写邮箱授权码（App Password），不要填写邮箱登录密码。\n@@\n-## 5. 第二阶段输出说明\n+## 5. 第三阶段输出说明\n \n - 第一次运行时：历史记录为空，通常会把当前活动都判定为“新活动”\n - 第二次及之后运行：已见过的活动会进入“普通活动”\n - 历史文件位置：`data/seen_activities.json`\n+- 仅当存在“新活动”时，才会触发邮件发送\n+- 如果 SMTP 配置不完整或发送失败，会在日志中记录详细原因\n*** End Patch\n",
+          "timestamp": "2026-03-18T11:07:06.447Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "python -m py_compile main.py monitor.py models.py storage.py notifier.py page_selectors.py"
+          },
+          "timestamp": "2026-03-18T11:07:17.024Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "python - <<'PY'\nfrom models import Activity\nfrom notifier import EmailNotifier\n\nn1 = EmailNotifier(None)\nprint('no_new', n1.notify_new_activities([]))\nprint('new_but_missing_cfg', n1.notify_new_activities([Activity('测试活动', '未开始', '2026-03-20 10:00:00 至 2026-03-20 11:00:00')]))\nPY"
+          },
+          "timestamp": "2026-03-18T11:07:17.025Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "rg -n \"EmailNotifier|notify_new_activities|第三阶段|smtp|授权码|config.example.json|email\" main.py notifier.py README.md config.example.json"
+          },
+          "timestamp": "2026-03-18T11:07:17.186Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "update_plan",
+          "input": {
+            "explanation": "第三阶段已完成：读取配置、发送新活动邮件、记录失败日志，未扩展到第四阶段。",
+            "plan": [
+              {
+                "status": "completed",
+                "step": "实现 SMTP 邮件通知模块（仅新活动触发）"
+              },
+              {
+                "status": "completed",
+                "step": "主流程接入第三阶段邮件通知"
+              },
+              {
+                "status": "completed",
+                "step": "补充配置模板与 README 邮件配置说明"
+              },
+              {
+                "status": "completed",
+                "step": "语法检查与最小行为验证"
+              }
+            ]
+          },
+          "timestamp": "2026-03-18T11:07:21.887Z"
+        },
+        {
+          "type": "assistant",
+          "text": "第三阶段已完成，并且仍然只在前三阶段范围内实现。\n\n**本次修改**\n- 新增邮件模块：[notifier.py](/home/yuxuan/Desktop/study/2th/LectureMonitor/notifier.py)\n- 主流程接入邮件通知：[main.py](/home/yuxuan/Desktop/study/2th/LectureMonitor/main.py#L60)\n- 补回并更新配置模板：[config.example.json](/home/yuxuan/Desktop/study/2th/LectureMonitor/config.example.json)\n- 更新文档到第三阶段：[README.md](/home/yuxuan/Desktop/study/2th/LectureMonitor/README.md)\n\n**实现效果**\n- 从 `config.json` 的 `email` 字段读取 SMTP 配置。\n- 仅在检测到“新活动”时发送邮件（普通活动不发）。\n- 邮件内容包含：标题、状态、时间、检测时间。\n- 发送失败会写入日志（含异常堆栈）。\n- 配置缺失时会记录 warning 并跳过发送，不会中断主流程。\n\n**你需要做的配置**\n在 `config.json` 里补上 `email`（参考 `config.example.json`）：\n```json\n\"email\": {\n  \"smtp_host\": \"smtp.example.com\",\n  \"smtp_port\": 465,\n  \"sender\": \"your_email@example.com\",\n  \"password\": \"your_app_password\",\n  \"receiver\": \"your_email@example.com\",\n  \"use_ssl\": true\n}\n```\n`password` 请用邮箱授权码，不要用登录密码。\n\n**已验证**\n- 语法检查通过：`python -m py_compile main.py monitor.py models.py storage.py notifier.py page_selectors.py`\n- 本地最小行为验证通过（无新活动/配置缺失分支）；真实 SMTP 发送未在当前环境联网上实测。",
+          "timestamp": "2026-03-18T11:07:37.537Z"
+        },
+        {
+          "type": "user",
+          "text": "好的，最后进行第四阶段的工作，使得脚本可以自动循环检测",
+          "timestamp": "2026-03-18T11:39:38.981Z"
+        },
+        {
+          "type": "assistant",
+          "text": "我会按第四阶段完整落地：增加监控时间窗口判断、循环调度、登录失效检测并邮件提醒、README 说明，同时保证你可以直接自动循环检测。先快速审查当前 `main.py/monitor.py/notifier.py/config` 的接口，再做改造。",
+          "timestamp": "2026-03-18T11:39:56.623Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "sed -n '1,220p' main.py"
+          },
+          "timestamp": "2026-03-18T11:39:56.626Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "sed -n '1,340p' monitor.py"
+          },
+          "timestamp": "2026-03-18T11:39:56.633Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "sed -n '1,260p' notifier.py"
+          },
+          "timestamp": "2026-03-18T11:39:56.663Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "cat config.example.json && echo '---' && cat config.json && echo '---' && sed -n '1,260p' README.md"
+          },
+          "timestamp": "2026-03-18T11:39:56.663Z"
+        },
+        {
+          "type": "assistant",
+          "text": "我会把第四阶段拆成三块改造：`main.py` 加循环调度与时间窗口、`monitor.py` 增加可识别的登录失效异常、`notifier.py` 增加“登录失效提醒邮件”。先从通知器和登录异常开始。",
+          "timestamp": "2026-03-18T11:40:40.543Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: notifier.py\n@@\n class EmailNotifier:\n@@\n     def notify_new_activities(self, activities: list[Activity]) -> bool:\n         \"\"\"仅在存在新活动时发送提醒邮件。\"\"\"\n         if not activities:\n             logging.info(\"本次无新活动，不发送邮件。\")\n             return True\n \n         ok, missing_fields = self._validate_config()\n         if not ok:\n             logging.warning(\n                 \"邮件配置不完整，已跳过发送。缺少字段: %s\",\n                 \", \".join(missing_fields),\n             )\n             return False\n \n-        message = self._build_message(activities)\n-\n-        smtp_host = str(self.email_config.get(\"smtp_host\"))\n-        smtp_port = int(self.email_config.get(\"smtp_port\", 465))\n-        sender = str(self.email_config.get(\"sender\"))\n-        password = str(self.email_config.get(\"password\"))\n-        use_ssl = bool(self.email_config.get(\"use_ssl\", True))\n-\n-        try:\n-            if use_ssl:\n-                with smtplib.SMTP_SSL(smtp_host, smtp_port, timeout=20) as smtp:\n-                    smtp.login(sender, password)\n-                    smtp.send_message(message)\n-            else:\n-                with smtplib.SMTP(smtp_host, smtp_port, timeout=20) as smtp:\n-                    smtp.ehlo()\n-                    if bool(self.email_config.get(\"use_starttls\", True)):\n-                        smtp.starttls()\n-                        smtp.ehlo()\n-                    smtp.login(sender, password)\n-                    smtp.send_message(message)\n-\n-            logging.info(\"新活动提醒邮件发送成功，共 %d 条。\", len(activities))\n-            return True\n-\n-        except (smtplib.SMTPException, OSError, TimeoutError) as exc:\n-            logging.exception(\"新活动提醒邮件发送失败: %s\", exc)\n-            return False\n+        now_text = datetime.now().strftime(\"%Y-%m-%d %H:%M:%S\")\n+        subject = f\"[LectureMonitor] 发现 {len(activities)} 个新活动\"\n+        body_lines = [\n+            \"检测到新的“形势与政策讲座”相关活动：\",\n+            f\"检测时间：{now_text}\",\n+            \"\",\n+        ]\n+\n+        for index, activity in enumerate(activities, start=1):\n+            body_lines.append(f\"{index}. 标题：{activity.title}\")\n+            body_lines.append(f\"   状态：{activity.status}\")\n+            body_lines.append(f\"   时间：{activity.time_text}\")\n+            body_lines.append(\"\")\n+\n+        success = self._send_email(subject, \"\\n\".join(body_lines))\n+        if success:\n+            logging.info(\"新活动提醒邮件发送成功，共 %d 条。\", len(activities))\n+        else:\n+            logging.error(\"新活动提醒邮件发送失败。\")\n+        return success\n+\n+    def notify_login_invalid(self, reason: str) -> bool:\n+        \"\"\"登录失效提醒邮件。\"\"\"\n+        ok, missing_fields = self._validate_config()\n+        if not ok:\n+            logging.warning(\n+                \"邮件配置不完整，无法发送登录失效提醒。缺少字段: %s\",\n+                \", \".join(missing_fields),\n+            )\n+            return False\n+\n+        now_text = datetime.now().strftime(\"%Y-%m-%d %H:%M:%S\")\n+        subject = \"[LectureMonitor] 登录状态失效，请手动重新登录\"\n+        body = (\n+            \"监控脚本检测到登录状态失效。\\n\"\n+            f\"检测时间：{now_text}\\n\"\n+            f\"原因：{reason}\\n\\n\"\n+            \"请手动打开脚本进行一次登录恢复。\"\n+        )\n+        success = self._send_email(subject, body)\n+        if success:\n+            logging.info(\"登录失效提醒邮件发送成功。\")\n+        else:\n+            logging.error(\"登录失效提醒邮件发送失败。\")\n+        return success\n@@\n-    def _build_message(self, activities: list[Activity]) -> EmailMessage:\n+    def _build_message(self, subject: str, body: str) -> EmailMessage:\n         sender = str(self.email_config.get(\"sender\"))\n         receiver = str(self.email_config.get(\"receiver\"))\n-        now_text = datetime.now().strftime(\"%Y-%m-%d %H:%M:%S\")\n \n         message = EmailMessage()\n         message[\"From\"] = sender\n         message[\"To\"] = receiver\n-        message[\"Subject\"] = f\"[LectureMonitor] 发现 {len(activities)} 个新活动\"\n-\n-        body_lines = [\n-            \"检测到新的“形势与政策讲座”相关活动：\",\n-            f\"检测时间：{now_text}\",\n-            \"\",\n-        ]\n-\n-        for index, activity in enumerate(activities, start=1):\n-            body_lines.append(f\"{index}. 标题：{activity.title}\")\n-            body_lines.append(f\"   状态：{activity.status}\")\n-            body_lines.append(f\"   时间：{activity.time_text}\")\n-            body_lines.append(\"\")\n-\n-        message.set_content(\"\\n\".join(body_lines))\n+        message[\"Subject\"] = subject\n+        message.set_content(body)\n         return message\n+\n+    def _send_email(self, subject: str, body: str) -> bool:\n+        message = self._build_message(subject, body)\n+\n+        smtp_host = str(self.email_config.get(\"smtp_host\"))\n+        smtp_port = int(self.email_config.get(\"smtp_port\", 465))\n+        sender = str(self.email_config.get(\"sender\"))\n+        password = str(self.email_config.get(\"password\"))\n+        use_ssl = bool(self.email_config.get(\"use_ssl\", True))\n+\n+        try:\n+            if use_ssl:\n+                with smtplib.SMTP_SSL(smtp_host, smtp_port, timeout=20) as smtp:\n+                    smtp.login(sender, password)\n+                    smtp.send_message(message)\n+            else:\n+                with smtplib.SMTP(smtp_host, smtp_port, timeout=20) as smtp:\n+                    smtp.ehlo()\n+                    if bool(self.email_config.get(\"use_starttls\", True)):\n+                        smtp.starttls()\n+                        smtp.ehlo()\n+                    smtp.login(sender, password)\n+                    smtp.send_message(message)\n+            return True\n+\n+        except (smtplib.SMTPException, OSError, TimeoutError) as exc:\n+            logging.exception(\"邮件发送失败: %s\", exc)\n+            return False\n*** End Patch\n",
+          "timestamp": "2026-03-18T11:41:02.720Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: monitor.py\n@@\n from models import Activity\n import page_selectors as selectors\n \n \n+class LoginRequiredError(RuntimeError):\n+    \"\"\"登录状态不可用，需要用户手动重新登录。\"\"\"\n+\n+\n class LectureMonitor:\n@@\n-    def run_once(self) -> list[Activity]:\n+    def run_once(self, allow_manual_login: bool = False) -> list[Activity]:\n         \"\"\"执行一次完整流程：进入页面、筛选、查询、解析结果。\"\"\"\n         with sync_playwright() as playwright:\n             context = playwright.chromium.launch_persistent_context(\n                 user_data_dir=str(self.profile_dir),\n                 headless=self.headless,\n@@\n             page = context.new_page()\n             logging.info(\"打开页面: %s\", self.url)\n             page.goto(self.url, wait_until=\"domcontentloaded\", timeout=self.page_load_ms)\n \n-            self._ensure_login(page)\n+            self._ensure_login(page, allow_manual_login=allow_manual_login)\n             self._apply_filters(page)\n             self._click_query(page)\n@@\n-    def _ensure_login(self, page: Page) -> None:\n+    def _ensure_login(self, page: Page, allow_manual_login: bool) -> None:\n         \"\"\"检测是否已登录；如果未登录，提示用户手动登录。\"\"\"\n         if self._has_search_filters(page):\n             logging.info(\"检测到筛选区域，登录状态可用。\")\n             return\n \n-        logging.warning(\"暂未检测到筛选区域，可能尚未登录或登录失效。\")\n-        input(\"请在打开的浏览器中手动登录，然后回到终端按回车继续... \")\n-\n-        page.goto(self.url, wait_until=\"domcontentloaded\", timeout=self.page_load_ms)\n-        if not self._has_search_filters(page):\n-            self._print_login_debug_tips()\n-            raise RuntimeError(\"登录后仍未检测到筛选区域，请按 README 的调试步骤检查页面元素。\")\n+        logging.warning(\"暂未检测到筛选区域，可能尚未登录或登录失效。\")\n+        if not allow_manual_login:\n+            raise LoginRequiredError(\"未检测到筛选区域，当前登录状态可能失效。\")\n+\n+        input(\"请在打开的浏览器中手动登录，然后回到终端按回车继续... \")\n+        page.goto(self.url, wait_until=\"domcontentloaded\", timeout=self.page_load_ms)\n+        if not self._has_search_filters(page):\n+            self._print_login_debug_tips()\n+            raise LoginRequiredError(\"手动登录后仍未检测到筛选区域。\")\n*** End Patch\n",
+          "timestamp": "2026-03-18T11:41:16.243Z"
+        },
+        {
+          "type": "assistant",
+          "text": "我正在把主入口改成“循环调度器”：按时间窗口决定是否执行本轮检查；每轮执行时复用你已有的监控、历史比对和新活动邮件逻辑；如果检测到登录失效会单独触发一次提醒邮件。",
+          "timestamp": "2026-03-18T11:41:41.226Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "cat > main.py <<'EOF'\nimport argparse\nimport json\nimport logging\nimport time\nfrom datetime import datetime\nfrom pathlib import Path\n\nfrom models import Activity\nfrom monitor import LectureMonitor, LoginRequiredError\nfrom notifier import EmailNotifier\nfrom storage import ActivityStorage\n\n\ndef setup_logging() -> None:\n    \"\"\"初始化日志：同时输出到终端和文件。\"\"\"\n    log_dir = Path(\"logs\")\n    log_dir.mkdir(parents=True, exist_ok=True)\n\n    logging.basicConfig(\n        level=logging.INFO,\n        format=\"%(asctime)s | %(levelname)s | %(message)s\",\n        handlers=[\n            logging.StreamHandler(),\n            logging.FileHandler(log_dir / \"monitor.log\", encoding=\"utf-8\"),\n        ],\n    )\n\n\ndef load_config(config_path: Path) -> dict:\n    \"\"\"读取 JSON 配置文件。\"\"\"\n    if not config_path.exists():\n        raise FileNotFoundError(\n            f\"未找到配置文件: {config_path}。请先基于 config.example.json 创建 config.json\"\n        )\n\n    with config_path.open(\"r\", encoding=\"utf-8\") as file:\n        return json.load(file)\n\n\ndef parse_args() -> argparse.Namespace:\n    parser = argparse.ArgumentParser(description=\"RUC 讲座监控（第四阶段：循环调度与健壮性）\")\n    parser.add_argument(\n        \"--config\",\n        default=\"config.json\",\n        help=\"配置文件路径，默认: config.json\",\n    )\n    parser.add_argument(\n        \"--once\",\n        action=\"store_true\",\n        help=\"仅执行一轮（调试用）\",\n    )\n    parser.add_argument(\n        \"--manual-login\",\n        action=\"store_true\",\n        help=\"登录失效时允许在终端手动登录恢复（默认关闭）\",\n    )\n    return parser.parse_args()\n\n\ndef print_activity_group(group_name: str, activities: list[Activity]) -> None:\n    \"\"\"按分组打印活动信息。\"\"\"\n    print(f\"\\n--- {group_name}（{len(activities)}）---\")\n    if not activities:\n        print(\"无\")\n        return\n\n    for index, activity in enumerate(activities, start=1):\n        print(f\"{index}. 标题: {activity.title}\")\n        print(f\"   状态: {activity.status}\")\n        print(f\"   时间: {activity.time_text}\")\n\n\ndef get_runtime_config(config: dict) -> tuple[int, int, int]:\n    \"\"\"读取第四阶段运行配置。\"\"\"\n    check_interval_minutes = int(config.get(\"check_interval_minutes\", 10))\n    monitor_start_hour = int(config.get(\"monitor_start_hour\", 8))\n    monitor_end_hour = int(config.get(\"monitor_end_hour\", 22))\n\n    if check_interval_minutes <= 0:\n        raise ValueError(\"check_interval_minutes 必须大于 0\")\n    if not (0 <= monitor_start_hour <= 23 and 0 <= monitor_end_hour <= 23):\n        raise ValueError(\"monitor_start_hour 和 monitor_end_hour 必须在 0~23 之间\")\n\n    return check_interval_minutes, monitor_start_hour, monitor_end_hour\n\n\ndef is_within_monitor_window(now: datetime, start_hour: int, end_hour: int) -> bool:\n    \"\"\"判断当前时间是否在监控时间窗口内。\"\"\"\n    current_hour = now.hour\n\n    if start_hour == end_hour:\n        return True\n\n    if start_hour < end_hour:\n        return start_hour <= current_hour < end_hour\n\n    # 允许跨天窗口，例如 22:00 到次日 08:00\n    return current_hour >= start_hour or current_hour < end_hour\n\n\ndef run_single_cycle(\n    monitor: LectureMonitor,\n    storage: ActivityStorage,\n    notifier: EmailNotifier,\n    allow_manual_login: bool,\n    login_alert_sent: bool,\n) -> bool:\n    \"\"\"执行一轮检测，返回更新后的登录失效提醒状态。\"\"\"\n    logging.info(\"开始新一轮检查。\")\n\n    try:\n        activities = monitor.run_once(allow_manual_login=allow_manual_login)\n\n    except LoginRequiredError as exc:\n        logging.warning(\"检测到登录失效: %s\", exc)\n        if not login_alert_sent:\n            notifier.notify_login_invalid(str(exc))\n            return True\n\n        logging.info(\"登录失效提醒邮件已发送过，本轮不重复发送。\")\n        return True\n\n    except Exception as exc:\n        logging.exception(\"本轮检查发生异常: %s\", exc)\n        return login_alert_sent\n\n    ordinary_activities, new_activities = storage.classify_and_update(activities)\n\n    print(\"\\n===== 本次活动检测结果 =====\")\n    if not activities:\n        print(\"未解析到活动（可能是筛选结果为空，或选择器需要调试）。\")\n    else:\n        print_activity_group(\"新活动\", new_activities)\n        print_activity_group(\"普通活动\", ordinary_activities)\n\n    if new_activities:\n        notifier.notify_new_activities(new_activities)\n    else:\n        logging.info(\"本次没有新活动，不触发邮件通知。\")\n\n    return False\n\n\ndef main() -> None:\n    args = parse_args()\n    setup_logging()\n\n    try:\n        config = load_config(Path(args.config))\n        check_interval_minutes, monitor_start_hour, monitor_end_hour = get_runtime_config(config)\n\n        monitor = LectureMonitor(config)\n        storage = ActivityStorage()\n        notifier = EmailNotifier(config.get(\"email\"))\n\n        logging.info(\"脚本启动。\")\n        logging.info(\n            \"监控配置：间隔=%d 分钟，时间窗口=%02d:00-%02d:00\",\n            check_interval_minutes,\n            monitor_start_hour,\n            monitor_end_hour,\n        )\n\n        login_alert_sent = False\n        while True:\n            now = datetime.now()\n            in_window = is_within_monitor_window(now, monitor_start_hour, monitor_end_hour)\n            logging.info(\"当前时间：%s，是否处于监控时段：%s\", now.strftime(\"%Y-%m-%d %H:%M:%S\"), in_window)\n\n            if in_window:\n                login_alert_sent = run_single_cycle(\n                    monitor=monitor,\n                    storage=storage,\n                    notifier=notifier,\n                    allow_manual_login=args.manual_login,\n                    login_alert_sent=login_alert_sent,\n                )\n            else:\n                logging.info(\"当前不在监控时段，跳过本轮查询。\")\n\n            if args.once:\n                logging.info(\"--once 模式已完成，脚本结束。\")\n                break\n\n            logging.info(\"休眠 %d 分钟后进行下一轮。\", check_interval_minutes)\n            time.sleep(check_interval_minutes * 60)\n\n    except KeyboardInterrupt:\n        logging.info(\"收到中断信号，脚本结束。\")\n    except Exception as exc:\n        logging.exception(\"运行失败: %s\", exc)\n        raise\n\n\nif __name__ == \"__main__\":\n    main()\nEOF"
+          },
+          "timestamp": "2026-03-18T11:42:09.671Z"
+        },
+        {
+          "type": "assistant",
+          "text": "主循环已经接好，接下来我会同步更新 `config.example.json` 和 README，把第四阶段配置项、循环运行方式、登录失效处理都写清楚。",
+          "timestamp": "2026-03-18T11:42:13.267Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: config.example.json\n@@\n {\n   \"url\": \"https://v.ruc.edu.cn/campus#/search\",\n+  \"check_interval_minutes\": 10,\n+  \"monitor_start_hour\": 8,\n+  \"monitor_end_hour\": 22,\n   \"browser\": {\n     \"headless\": false,\n     \"slow_mo_ms\": 100,\n*** End Patch\n",
+          "timestamp": "2026-03-18T11:42:14.854Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: config.json\n@@\n {\n   \"url\": \"https://v.ruc.edu.cn/campus#/search\",\n+  \"check_interval_minutes\": 10,\n+  \"monitor_start_hour\": 8,\n+  \"monitor_end_hour\": 22,\n   \"browser\": {\n*** End Patch\n",
+          "timestamp": "2026-03-18T11:42:19.541Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "cat > README.md <<'EOF'\n# RUC 形势与政策讲座监控脚本（第四阶段）\n\n当前实现到 **第四阶段：定时运行与健壮性**。\n\n已实现内容：\n- Playwright 持久化浏览器上下文（复用登录状态）\n- 自动设置筛选条件并查询活动\n- 解析活动标题 / 状态 / 时间\n- `data/seen_activities.json` 历史记录与新活动识别\n- 新活动邮件提醒（SMTP）\n- 固定时间窗口内循环检测\n- 登录失效检测，并发送登录失效提醒邮件\n\n## 1. 环境准备\n\n```bash\npython3 -m venv .venv\nsource .venv/bin/activate\npip install -r requirements.txt\nplaywright install chromium\n```\n\n## 2. 配置文件\n\n```bash\ncp config.example.json config.json\n```\n\n关键配置项：\n- `check_interval_minutes`：轮询间隔（分钟）\n- `monitor_start_hour`：监控起始小时（0-23）\n- `monitor_end_hour`：监控结束小时（0-23，结束小时本身不包含）\n- `browser.headless`：调试建议设为 `false`\n- `email`：SMTP 发件配置\n\n`email` 示例：\n\n```json\n\"email\": {\n  \"smtp_host\": \"smtp.example.com\",\n  \"smtp_port\": 465,\n  \"sender\": \"your_email@example.com\",\n  \"password\": \"your_app_password\",\n  \"receiver\": \"your_email@example.com\",\n  \"use_ssl\": true\n}\n```\n\n注意：\n- `password` 使用邮箱授权码（App Password），不要用邮箱登录密码。\n\n## 3. 运行方式\n\n循环监控（默认）：\n\n```bash\npython main.py --config config.json\n```\n\n仅执行一轮（调试）：\n\n```bash\npython main.py --config config.json --once\n```\n\n登录失效时允许手动登录恢复：\n\n```bash\npython main.py --config config.json --manual-login\n```\n\n## 4. 第四阶段行为说明\n\n- 脚本只在监控时间窗口内执行查询。\n- 不在监控时间窗口时，会记录日志并跳过本轮。\n- 每轮检测后休眠 `check_interval_minutes` 分钟再继续。\n- 检测到登录失效时：\n  - 记录 warning 日志\n  - 尝试发送“登录失效提醒邮件”\n  - 同一进程内避免重复发送失效提醒（直到登录恢复）\n- 检测到新活动时发送新活动邮件；无新活动不发。\n\n## 5. 输出与日志\n\n- 控制台会输出“新活动/普通活动”分组结果。\n- 日志文件：`logs/monitor.log`\n- 历史记录文件：`data/seen_activities.json`\n\n## 6. 页面元素定位调试\n\n如果日志出现定位失败（TODO），请检查 `page_selectors.py` 中这些配置：\n- `FILTER_CONFIG`\n- `CAMPUS_FILTER_*`\n- `RESULT_ROW_SELECTORS`\n\n可辅助使用：\n\n```bash\nplaywright codegen https://v.ruc.edu.cn/campus#/search\n```\n\n## 7. 说明\n\n- 不自动输入用户名/密码/验证码\n- 不做验证码识别或绕过\n- 不自动报名\nEOF"
+          },
+          "timestamp": "2026-03-18T11:42:41.982Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "sed -n '1,260p' README.md"
+          },
+          "timestamp": "2026-03-18T11:42:45.850Z"
+        },
+        {
+          "type": "assistant",
+          "text": "我现在做第四阶段的自检：语法检查 + 时间窗口函数的快速验证，确保循环调度逻辑可用且不会引入阻塞问题。",
+          "timestamp": "2026-03-18T11:43:01.190Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "python -m py_compile main.py monitor.py notifier.py storage.py models.py page_selectors.py"
+          },
+          "timestamp": "2026-03-18T11:43:01.198Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "python - <<'PY'\nfrom datetime import datetime\nfrom main import is_within_monitor_window\n\nprint('08-22 @09', is_within_monitor_window(datetime(2026, 3, 18, 9, 0, 0), 8, 22))\nprint('08-22 @23', is_within_monitor_window(datetime(2026, 3, 18, 23, 0, 0), 8, 22))\nprint('22-08 @23', is_within_monitor_window(datetime(2026, 3, 18, 23, 0, 0), 22, 8))\nprint('22-08 @09', is_within_monitor_window(datetime(2026, 3, 18, 9, 0, 0), 22, 8))\nPY"
+          },
+          "timestamp": "2026-03-18T11:43:01.199Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "rg -n \"check_interval_minutes|monitor_start_hour|monitor_end_hour|--once|--manual-login|LoginRequiredError|notify_login_invalid|循环|监控时间窗口\" main.py monitor.py notifier.py config.example.json README.md"
+          },
+          "timestamp": "2026-03-18T11:43:01.200Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: monitor.py\n@@\n class LectureMonitor:\n-    \"\"\"第一阶段：最小可运行监控流程。\"\"\"\n+    \"\"\"活动页面监控核心流程。\"\"\"\n@@\n-    def _ensure_login(self, page: Page, allow_manual_login: bool) -> None:\n-        \"\"\"检测是否已登录；如果未登录，提示用户手动登录。\"\"\"\n+    def _ensure_login(self, page: Page, allow_manual_login: bool) -> None:\n+        \"\"\"检测登录状态；失效时抛出登录异常或进入手动恢复流程。\"\"\"\n*** End Patch\n",
+          "timestamp": "2026-03-18T11:43:13.344Z"
+        },
+        {
+          "type": "assistant",
+          "text": "我补了一点文档注释，使 `monitor.py` 的描述与第四阶段一致。现在再做一次最终语法检查，确认所有改动可运行。",
+          "timestamp": "2026-03-18T11:43:17.690Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "python -m py_compile main.py monitor.py notifier.py storage.py models.py page_selectors.py"
+          },
+          "timestamp": "2026-03-18T11:43:18.376Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "update_plan",
+          "input": {
+            "explanation": "第四阶段已实现：自动循环检测、监控时间窗口、登录失效检测与提醒、文档更新。",
+            "plan": [
+              {
+                "status": "completed",
+                "step": "为主流程增加时间窗口与循环调度（第四阶段）"
+              },
+              {
+                "status": "completed",
+                "step": "增加登录失效异常与登录失效提醒邮件"
+              },
+              {
+                "status": "completed",
+                "step": "更新配置模板与 README 第四阶段说明"
+              },
+              {
+                "status": "completed",
+                "step": "语法检查并完成自检"
+              }
+            ]
+          },
+          "timestamp": "2026-03-18T11:43:28.647Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "nl -ba main.py | sed -n '1,260p'"
+          },
+          "timestamp": "2026-03-18T11:43:33.982Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "nl -ba monitor.py | sed -n '1,120p'"
+          },
+          "timestamp": "2026-03-18T11:43:34.133Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "nl -ba notifier.py | sed -n '1,240p'"
+          },
+          "timestamp": "2026-03-18T11:43:34.133Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "nl -ba config.example.json | sed -n '1,120p' && echo '---' && nl -ba README.md | sed -n '1,220p'"
+          },
+          "timestamp": "2026-03-18T11:43:34.134Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: notifier.py\n@@\n class EmailNotifier:\n-    \"\"\"SMTP 邮件通知器（第三阶段）。\"\"\"\n+    \"\"\"SMTP 邮件通知器（新活动提醒 + 登录失效提醒）。\"\"\"\n*** End Patch\n",
+          "timestamp": "2026-03-18T11:43:42.999Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "python -m py_compile main.py monitor.py notifier.py storage.py models.py page_selectors.py"
+          },
+          "timestamp": "2026-03-18T11:43:47.191Z"
+        },
+        {
+          "type": "assistant",
+          "text": "第四阶段已完成，脚本现在可以自动循环检测，并且包含登录失效处理。\n\n**核心改动**\n- 循环调度 + 时间窗口判断：[`main.py`](/home/yuxuan/Desktop/study/2th/LectureMonitor/main.py#L73)\n- 每轮检查流程封装（含新活动邮件、异常日志）：[`main.py`](/home/yuxuan/Desktop/study/2th/LectureMonitor/main.py#L101)\n- 登录失效异常类型与检测：[`monitor.py`](/home/yuxuan/Desktop/study/2th/LectureMonitor/monitor.py#L12), [`monitor.py`](/home/yuxuan/Desktop/study/2th/LectureMonitor/monitor.py#L56)\n- 登录失效提醒邮件：[`notifier.py`](/home/yuxuan/Desktop/study/2th/LectureMonitor/notifier.py#L51)\n- 新增第四阶段配置项模板：[`config.example.json`](/home/yuxuan/Desktop/study/2th/LectureMonitor/config.example.json#L3)\n- 第四阶段 README 说明：[`README.md`](/home/yuxuan/Desktop/study/2th/LectureMonitor/README.md#L1)\n\n**现在支持的运行方式**\n- 默认循环监控：`python main.py --config config.json`\n- 只跑一轮调试：`python main.py --config config.json --once`\n- 登录失效时允许终端手动恢复：`python main.py --config config.json --manual-login`\n\n**第四阶段行为**\n- 只在 `monitor_start_hour` 到 `monitor_end_hour` 窗口内执行查询。\n- 按 `check_interval_minutes` 自动循环。\n- 检测到登录失效会记录日志，并发送登录失效提醒邮件（同一进程内避免重复提醒，直到登录恢复）。\n\n**校验情况**\n- 语法检查通过：`python -m py_compile main.py monitor.py notifier.py storage.py models.py page_selectors.py`\n- 未做端到端实跑（当前环境缺少 `playwright` 运行依赖时会报导入错误）。  \n\n如果你愿意，我下一步可以再帮你加一个“登录失效后自动截图当前页面到 `logs/`”的调试功能，定位会更快。",
+          "timestamp": "2026-03-18T11:44:03.068Z"
+        },
+        {
+          "type": "user",
+          "text": "现在的登录失效检测太快了，应该打开浏览器窗口以后先等几秒等网页完全刷出来了再检测登录状态",
+          "timestamp": "2026-03-18T11:48:27.409Z"
+        },
+        {
+          "type": "assistant",
+          "text": "你说得对，这个场景下 Angular 页面会有延迟渲染，确实不能太早判定登录失效。  \n我会把登录检测改成“先等待页面稳定 + 再做一次延迟重试”的两段式检测，并提供可配置等待时长。",
+          "timestamp": "2026-03-18T11:48:43.668Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: monitor.py\n@@\n class LectureMonitor:\n@@\n         timeout_config = config.get(\"timeouts\", {})\n         self.page_load_ms = int(timeout_config.get(\"page_load_ms\", 30000))\n         self.ui_wait_ms = int(timeout_config.get(\"ui_wait_ms\", 8000))\n+        # 登录检测前给页面一点渲染时间，避免过早判定登录失效\n+        self.login_check_delay_ms = int(timeout_config.get(\"login_check_delay_ms\", 3500))\n@@\n         with sync_playwright() as playwright:\n             context = playwright.chromium.launch_persistent_context(\n                 user_data_dir=str(self.profile_dir),\n                 headless=self.headless,\n                 slow_mo=self.slow_mo_ms,\n             )\n@@\n             page = context.new_page()\n             logging.info(\"打开页面: %s\", self.url)\n             page.goto(self.url, wait_until=\"domcontentloaded\", timeout=self.page_load_ms)\n+            self._wait_before_login_check(page)\n \n             self._ensure_login(page, allow_manual_login=allow_manual_login)\n             self._apply_filters(page)\n             self._click_query(page)\n@@\n     def _ensure_login(self, page: Page, allow_manual_login: bool) -> None:\n         \"\"\"检测登录状态；失效时抛出登录异常或进入手动恢复流程。\"\"\"\n         if self._has_search_filters(page):\n             logging.info(\"检测到筛选区域，登录状态可用。\")\n             return\n \n+        # 兼容前端异步渲染：首次未命中时再等一轮再判定\n+        logging.info(\"筛选区域首次未出现，等待页面继续渲染后重试。\")\n+        self._wait_before_login_check(page)\n+        if self._has_search_filters(page):\n+            logging.info(\"重试后检测到筛选区域，登录状态可用。\")\n+            return\n+\n         logging.warning(\"暂未检测到筛选区域，可能尚未登录或登录失效。\")\n         if not allow_manual_login:\n             raise LoginRequiredError(\"未检测到筛选区域，当前登录状态可能失效。\")\n \n         input(\"请在打开的浏览器中手动登录，然后回到终端按回车继续... \")\n         page.goto(self.url, wait_until=\"domcontentloaded\", timeout=self.page_load_ms)\n+        self._wait_before_login_check(page)\n         if not self._has_search_filters(page):\n             self._print_login_debug_tips()\n             raise LoginRequiredError(\"手动登录后仍未检测到筛选区域。\")\n@@\n     def _safe_inner_text(self, locator: Locator) -> str:\n         \"\"\"安全读取文本，避免因局部节点异常导致整体流程中断。\"\"\"\n         try:\n             return locator.inner_text(timeout=800).strip()\n         except PlaywrightTimeoutError:\n             return \"\"\n+\n+    def _wait_before_login_check(self, page: Page) -> None:\n+        \"\"\"登录检测前等待页面稳定，降低误判率。\"\"\"\n+        try:\n+            # 若页面很快稳定，这里会提前返回；否则最多等待 5 秒\n+            page.wait_for_load_state(\"networkidle\", timeout=min(self.page_load_ms, 5000))\n+        except PlaywrightTimeoutError:\n+            # 某些页面网络请求常驻，networkidle 可能不会触发，忽略即可\n+            pass\n+\n+        if self.login_check_delay_ms > 0:\n+            page.wait_for_timeout(self.login_check_delay_ms)\n*** End Patch\n",
+          "timestamp": "2026-03-18T11:48:57.730Z"
+        },
+        {
+          "type": "assistant",
+          "text": "我已经加上“先等待再判定 + 失败后延迟重试”逻辑了。接下来我再把 `config.example.json` 和你本地 `config.json` 补一个可调参数，方便你以后改等待时间。",
+          "timestamp": "2026-03-18T11:49:02.450Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: config.example.json\n@@\n   \"timeouts\": {\n     \"page_load_ms\": 30000,\n-    \"ui_wait_ms\": 8000\n+    \"ui_wait_ms\": 8000,\n+    \"login_check_delay_ms\": 3500\n   },\n*** End Patch\n",
+          "timestamp": "2026-03-18T11:49:03.670Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: config.json\n@@\n   \"timeouts\": {\n     \"page_load_ms\": 30000,\n-    \"ui_wait_ms\": 8000\n+    \"ui_wait_ms\": 8000,\n+    \"login_check_delay_ms\": 3500\n   },\n*** End Patch\n",
+          "timestamp": "2026-03-18T11:49:08.695Z"
+        },
+        {
+          "type": "assistant",
+          "text": "我再做一次语法检查，确保你可以直接运行。",
+          "timestamp": "2026-03-18T11:49:23.419Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "python -m py_compile main.py monitor.py notifier.py storage.py models.py page_selectors.py"
+          },
+          "timestamp": "2026-03-18T11:49:24.169Z"
+        },
+        {
+          "type": "assistant",
+          "text": "已按你的要求改好：现在不会一打开就立刻判断登录失效，而是先等页面刷出来再检测。\n\n改动如下：\n- 在 [`monitor.py`](/home/yuxuan/Desktop/study/2th/LectureMonitor/monitor.py) 增加登录检测前等待逻辑：\n  - `page.goto(...)` 后先 `_wait_before_login_check(page)`\n  - 首次未检测到筛选区时，会“再等待一次再重试”\n- 新增可配置参数 `timeouts.login_check_delay_ms`（默认 `3500ms`）\n  - 已写入 [`config.example.json`](/home/yuxuan/Desktop/study/2th/LectureMonitor/config.example.json)\n  - 也同步写入了你的 [`config.json`](/home/yuxuan/Desktop/study/2th/LectureMonitor/config.json)\n\n当前行为：\n1. 打开页面  \n2. 先等待（`networkidle` 最多 5 秒 + `login_check_delay_ms`）  \n3. 再检查登录状态  \n4. 若未命中，再等待一轮重试，仍失败才判定登录失效\n\n如果你还觉得快，可以把 `login_check_delay_ms` 调到 `5000` 或 `7000`。",
+          "timestamp": "2026-03-18T11:49:33.361Z"
+        },
+        {
+          "type": "user",
+          "text": "现在检测到登录失效以后浏览器页面就直接关闭了，但事实上是不是应该等用户重新登录完",
+          "timestamp": "2026-03-18T11:58:32.721Z"
+        },
+        {
+          "type": "assistant",
+          "text": "你这个判断非常合理。现在我会把行为改成“默认等待用户手动重新登录”，只有你显式指定参数时才跳过等待并继续循环。这样浏览器不会在登录失效时马上关闭。",
+          "timestamp": "2026-03-18T11:58:59.487Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: main.py\n@@\n     parser.add_argument(\n-        \"--manual-login\",\n-        action=\"store_true\",\n-        help=\"登录失效时允许在终端手动登录恢复（默认关闭）\",\n+        \"--no-manual-login\",\n+        action=\"store_true\",\n+        help=\"登录失效时不等待手动登录恢复，直接进入下一轮（默认会等待）\",\n     )\n     return parser.parse_args()\n@@\n                 login_alert_sent = run_single_cycle(\n                     monitor=monitor,\n                     storage=storage,\n                     notifier=notifier,\n-                    allow_manual_login=args.manual_login,\n+                    allow_manual_login=not args.no_manual_login,\n                     login_alert_sent=login_alert_sent,\n                 )\n*** End Patch\n",
+          "timestamp": "2026-03-18T11:59:02.961Z"
+        },
+        {
+          "type": "assistant",
+          "text": "我已经把主流程默认行为切成“等待手动登录恢复”。接下来我同步更新 README 的运行参数说明，避免你后面命令记混。",
+          "timestamp": "2026-03-18T11:59:07.465Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: README.md\n@@\n-登录失效时允许手动登录恢复：\n+登录失效时默认会等待你手动登录恢复（无需额外参数）。\n+\n+如果你希望登录失效时不等待、直接进入下一轮：\n \n ```bash\n-python main.py --config config.json --manual-login\n+python main.py --config config.json --no-manual-login\n ```\n*** End Patch\n",
+          "timestamp": "2026-03-18T11:59:09.413Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "python -m py_compile main.py monitor.py notifier.py storage.py models.py page_selectors.py"
+          },
+          "timestamp": "2026-03-18T11:59:12.480Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "rg -n \"manual-login|no-manual-login\" main.py README.md"
+          },
+          "timestamp": "2026-03-18T11:59:17.296Z"
+        },
+        {
+          "type": "assistant",
+          "text": "你说得对，我已经改成了“默认等待用户重新登录”。\n\n现在行为是：\n- 检测到登录失效时，浏览器不会立刻关闭。\n- 脚本会停在终端等待你手动登录，登录后按回车继续本轮流程。\n- 只有你显式加参数 `--no-manual-login`，才会跳过等待、直接进入下一轮。\n\n修改位置：\n- 参数默认行为调整：[main.py](/home/yuxuan/Desktop/study/2th/LectureMonitor/main.py#L40)\n- 文档说明同步更新：[README.md](/home/yuxuan/Desktop/study/2th/LectureMonitor/README.md#L66)\n\n语法检查已通过：\n- `python -m py_compile main.py monitor.py notifier.py storage.py models.py page_selectors.py`\n\n你现在直接用这个命令即可（默认会等待手动重登）：\n```bash\npython main.py --config config.json\n```",
+          "timestamp": "2026-03-18T11:59:26.616Z"
+        },
+        {
+          "type": "user",
+          "text": "目前有这样一个问题：在登录页面登录后，页面会被自动重定向到大厅首页，而不是目标页面，怎么办。",
+          "timestamp": "2026-03-18T12:16:39.182Z"
+        },
+        {
+          "type": "assistant",
+          "text": "这个问题很常见，我会直接把逻辑改成：手动登录后不依赖当前落地页，而是由脚本主动多次跳回目标 `#/search` 页面并检测筛选区，直到成功或达到重试上限。这样即使先被重定向到大厅首页，也能自动拉回目标页。马上改代码和配置项。",
+          "timestamp": "2026-03-18T12:17:17.457Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: monitor.py\n@@\n         timeout_config = config.get(\"timeouts\", {})\n         self.page_load_ms = int(timeout_config.get(\"page_load_ms\", 30000))\n         self.ui_wait_ms = int(timeout_config.get(\"ui_wait_ms\", 8000))\n         # 登录检测前给页面一点渲染时间，避免过早判定登录失效\n         self.login_check_delay_ms = int(timeout_config.get(\"login_check_delay_ms\", 3500))\n+        # 手动登录后，自动回到目标页的重试参数\n+        self.login_recover_retry_count = int(timeout_config.get(\"login_recover_retry_count\", 4))\n+        self.login_recover_retry_wait_ms = int(timeout_config.get(\"login_recover_retry_wait_ms\", 2000))\n@@\n     def _ensure_login(self, page: Page, allow_manual_login: bool) -> None:\n         \"\"\"检测登录状态；失效时抛出登录异常或进入手动恢复流程。\"\"\"\n         if self._has_search_filters(page):\n             logging.info(\"检测到筛选区域，登录状态可用。\")\n             return\n@@\n         logging.warning(\"暂未检测到筛选区域，可能尚未登录或登录失效。\")\n         if not allow_manual_login:\n             raise LoginRequiredError(\"未检测到筛选区域，当前登录状态可能失效。\")\n \n         input(\"请在打开的浏览器中手动登录，然后回到终端按回车继续... \")\n-        page.goto(self.url, wait_until=\"domcontentloaded\", timeout=self.page_load_ms)\n-        self._wait_before_login_check(page)\n-        if not self._has_search_filters(page):\n-            self._print_login_debug_tips()\n-            raise LoginRequiredError(\"手动登录后仍未检测到筛选区域。\")\n+        if self._recover_to_target_search_page(page):\n+            logging.info(\"手动登录后已成功回到目标检索页。\")\n+            return\n+\n+        self._print_login_debug_tips()\n+        raise LoginRequiredError(\"手动登录后仍未检测到筛选区域（已尝试自动跳回目标页）。\")\n@@\n     def _wait_before_login_check(self, page: Page) -> None:\n         \"\"\"登录检测前等待页面稳定，降低误判率。\"\"\"\n         try:\n             # 若页面很快稳定，这里会提前返回；否则最多等待 5 秒\n             page.wait_for_load_state(\"networkidle\", timeout=min(self.page_load_ms, 5000))\n@@\n \n         if self.login_check_delay_ms > 0:\n             page.wait_for_timeout(self.login_check_delay_ms)\n+\n+    def _recover_to_target_search_page(self, page: Page) -> bool:\n+        \"\"\"登录后自动跳回目标页面并多次重试，处理被重定向到大厅首页的情况。\"\"\"\n+        for attempt in range(1, self.login_recover_retry_count + 1):\n+            logging.info(\n+                \"登录恢复：尝试回到目标检索页（%d/%d）\",\n+                attempt,\n+                self.login_recover_retry_count,\n+            )\n+            page.goto(self.url, wait_until=\"domcontentloaded\", timeout=self.page_load_ms)\n+            self._wait_before_login_check(page)\n+\n+            if self._has_search_filters(page):\n+                return True\n+\n+            if self.login_recover_retry_wait_ms > 0:\n+                page.wait_for_timeout(self.login_recover_retry_wait_ms)\n+\n+        return False\n*** End Patch\n",
+          "timestamp": "2026-03-18T12:17:30.886Z"
+        },
+        {
+          "type": "assistant",
+          "text": "我再把这两个新恢复参数补到配置模板和当前配置里，避免你手动加字段。随后做一次语法检查。",
+          "timestamp": "2026-03-18T12:17:41.845Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "python - <<'PY'\nimport json\nfrom pathlib import Path\n\nfor name in ['config.example.json', 'config.json']:\n    p = Path(name)\n    data = json.loads(p.read_text(encoding='utf-8'))\n    timeouts = data.setdefault('timeouts', {})\n    timeouts.setdefault('login_recover_retry_count', 4)\n    timeouts.setdefault('login_recover_retry_wait_ms', 2000)\n    p.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\\n', encoding='utf-8')\nPY"
+          },
+          "timestamp": "2026-03-18T12:17:41.846Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "python -m py_compile main.py monitor.py notifier.py storage.py models.py page_selectors.py"
+          },
+          "timestamp": "2026-03-18T12:17:41.846Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "rg -n \"login_recover_retry_count|login_recover_retry_wait_ms|recover|大厅|重定向\" monitor.py config.example.json config.json README.md"
+          },
+          "timestamp": "2026-03-18T12:17:41.852Z"
+        },
+        {
+          "type": "assistant",
+          "text": "我顺手把 README 加一条“登录后被重定向大厅首页时会自动回跳目标页”的说明和参数解释，方便你后续调优等待策略。",
+          "timestamp": "2026-03-18T12:17:46.554Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: README.md\n@@\n 关键配置项：\n - `check_interval_minutes`：轮询间隔（分钟）\n - `monitor_start_hour`：监控起始小时（0-23）\n - `monitor_end_hour`：监控结束小时（0-23，结束小时本身不包含）\n - `browser.headless`：调试建议设为 `false`\n - `email`：SMTP 发件配置\n+- `timeouts.login_check_delay_ms`：登录检测前等待时间（毫秒）\n+- `timeouts.login_recover_retry_count`：登录后自动回跳目标页的重试次数\n+- `timeouts.login_recover_retry_wait_ms`：每次重试间隔（毫秒）\n@@\n - 检测到登录失效时：\n   - 记录 warning 日志\n   - 尝试发送“登录失效提醒邮件”\n   - 同一进程内避免重复发送失效提醒（直到登录恢复）\n+- 手动登录后若被重定向到大厅首页，脚本会自动多次跳回目标检索页再继续检测\n - 检测到新活动时发送新活动邮件；无新活动不发。\n*** End Patch\n",
+          "timestamp": "2026-03-18T12:17:51.160Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "cat config.example.json && echo '---' && cat config.json"
+          },
+          "timestamp": "2026-03-18T12:17:55.264Z"
+        },
+        {
+          "type": "assistant",
+          "text": "你这个场景已经处理好了：登录后即使被重定向到大厅首页，脚本也会自动拉回目标检索页再继续。\n\n已做修改：\n- 登录恢复逻辑增强：手动登录后自动重试跳转目标页  \n  [monitor.py](/home/yuxuan/Desktop/study/2th/LectureMonitor/monitor.py#L361)\n- 新增两个可调参数：  \n  - `timeouts.login_recover_retry_count`  \n  - `timeouts.login_recover_retry_wait_ms`  \n  [config.example.json](/home/yuxuan/Desktop/study/2th/LectureMonitor/config.example.json)  \n  [config.json](/home/yuxuan/Desktop/study/2th/LectureMonitor/config.json)\n- README 补充说明与参数解释  \n  [README.md](/home/yuxuan/Desktop/study/2th/LectureMonitor/README.md)\n\n当前流程变成：\n1. 检测到未登录  \n2. 等你手动登录  \n3. 脚本自动 `goto` 目标 `#/search` 并检测筛选区  \n4. 如果又被重定向，就按配置重试多次（默认 4 次，每次间隔 2 秒）\n\n如果你学校网络慢，建议把这两个参数调大一点，例如：\n- `login_recover_retry_count: 6`\n- `login_recover_retry_wait_ms: 3000`\n\n另外提醒一下：你当前 `config.json` 里有明文邮箱授权码，建议后续更换一次授权码并避免提交到仓库。",
+          "timestamp": "2026-03-18T12:18:09.697Z"
+        },
+        {
+          "type": "user",
+          "text": "跑通了，我接下来要push到github上去，接下来整理一下项目结构，写一版最终的readme，写好gitignore",
+          "timestamp": "2026-03-18T12:31:57.981Z"
+        },
+        {
+          "type": "assistant",
+          "text": "我来帮你做一版“可直接开源发布”的整理：先梳理当前目录，清理不该入库的运行产物，然后补全一份最终 README 和 `.gitignore`（重点保护 `config.json`、浏览器状态、日志、缓存）。我先扫描当前文件结构。",
+          "timestamp": "2026-03-18T12:32:13.400Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "pwd && ls -la"
+          },
+          "timestamp": "2026-03-18T12:32:13.427Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "find . -maxdepth 3 -type f | sort"
+          },
+          "timestamp": "2026-03-18T12:32:13.954Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "sed -n '1,260p' main.py && sed -n '1,420p' monitor.py && sed -n '1,260p' notifier.py && sed -n '1,260p' storage.py && sed -n '1,200p' models.py && sed -n '1,240p' page_selectors.py"
+          },
+          "timestamp": "2026-03-18T12:32:14.570Z"
+        },
+        {
+          "type": "assistant",
+          "text": "我准备做三件收尾：  \n1) 新增 `.gitignore`（防止把 `config.json`、浏览器登录态、日志、缓存推上去）  \n2) 重写一版发布用 README（包含目录结构、配置、运行、常见问题）  \n3) 增加 `data/.gitkeep` 与 `logs/.gitkeep`，让空目录也能保留。  \n现在开始改。",
+          "timestamp": "2026-03-18T12:33:34.092Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "cat > .gitignore <<'EOF'\n# Python cache\n__pycache__/\n*.py[cod]\n*.pyo\n\n# Virtual environments\n.venv/\nvenv/\n\n# Local config (contains secrets)\nconfig.json\n\n# Runtime data\nlogs/*\n!logs/.gitkeep\ndata/*\n!data/.gitkeep\n\n# Browser persistent profile (login state)\ndata/browser_profile/\n\n# Local debug artifacts\ntarget.html\n\n# IDE / OS\n.vscode/\n.idea/\n.DS_Store\nEOF"
+          },
+          "timestamp": "2026-03-18T12:33:34.098Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "touch data/.gitkeep logs/.gitkeep"
+          },
+          "timestamp": "2026-03-18T12:33:34.099Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "cat > README.md <<'EOF'\n# RUC 形势与政策讲座监控脚本\n\n一个本地运行的 Python 脚本，用于监控中国人民大学学务中心活动页中的“形势与政策讲座”相关活动，支持登录态复用、活动去重、邮件提醒与定时循环检测。\n\n## 功能概览\n\n- Playwright 持久化浏览器上下文，复用登录状态\n- 自动筛选：\n  - 活动大类：素质拓展认证\n  - 活动小类：形势与政策\n  - 小类子类：形势与政策讲座\n  - 活动状态：未开始\n- 解析活动列表（标题 / 状态 / 时间）\n- 本地 JSON 历史记录与新活动识别\n- 仅对“新活动”发送 SMTP 邮件通知\n- 固定时间窗口内自动循环检测\n- 登录失效检测与登录失效提醒邮件\n\n## 目录结构\n\n```text\nLectureMonitor/\n├─ main.py\n├─ monitor.py\n├─ notifier.py\n├─ storage.py\n├─ models.py\n├─ page_selectors.py\n├─ requirements.txt\n├─ config.example.json\n├─ README.md\n├─ .gitignore\n├─ data/\n│  └─ .gitkeep\n└─ logs/\n   └─ .gitkeep\n```\n\n运行后会自动生成：\n- `data/seen_activities.json`\n- `data/browser_profile/`\n- `logs/monitor.log`\n\n## 环境要求\n\n- Python 3.11+\n- Chromium（由 Playwright 安装）\n\n## 快速开始\n\n1. 创建并激活虚拟环境\n\n```bash\npython3 -m venv .venv\nsource .venv/bin/activate\n```\n\n2. 安装依赖\n\n```bash\npip install -r requirements.txt\nplaywright install chromium\n```\n\n3. 准备配置\n\n```bash\ncp config.example.json config.json\n```\n\n4. 运行\n\n```bash\npython main.py --config config.json\n```\n\n## 配置说明（config.json）\n\n```json\n{\n  \"url\": \"https://v.ruc.edu.cn/campus#/search\",\n  \"check_interval_minutes\": 10,\n  \"monitor_start_hour\": 8,\n  \"monitor_end_hour\": 22,\n  \"browser\": {\n    \"headless\": false,\n    \"slow_mo_ms\": 100,\n    \"profile_dir\": \"data/browser_profile\"\n  },\n  \"timeouts\": {\n    \"page_load_ms\": 30000,\n    \"ui_wait_ms\": 8000,\n    \"login_check_delay_ms\": 3500,\n    \"login_recover_retry_count\": 4,\n    \"login_recover_retry_wait_ms\": 2000\n  },\n  \"email\": {\n    \"smtp_host\": \"smtp.example.com\",\n    \"smtp_port\": 465,\n    \"sender\": \"your_email@example.com\",\n    \"password\": \"your_app_password\",\n    \"receiver\": \"your_email@example.com\",\n    \"use_ssl\": true\n  }\n}\n```\n\n关键字段：\n- `check_interval_minutes`：轮询间隔（分钟）\n- `monitor_start_hour` / `monitor_end_hour`：监控时段（按小时）\n- `timeouts.login_check_delay_ms`：登录检测前额外等待，避免误判\n- `timeouts.login_recover_retry_count`：登录后自动回跳目标页重试次数\n- `timeouts.login_recover_retry_wait_ms`：重试间隔\n\n## 运行参数\n\n- 默认循环监控：\n\n```bash\npython main.py --config config.json\n```\n\n- 仅执行一轮（调试）：\n\n```bash\npython main.py --config config.json --once\n```\n\n- 登录失效时不等待手动恢复（默认会等待）：\n\n```bash\npython main.py --config config.json --no-manual-login\n```\n\n## 登录与重定向说明\n\n- 默认情况下，检测到登录失效后脚本会等待你手动登录。\n- 登录后如果页面被重定向到大厅首页，脚本会自动多次跳回目标检索页并重试检测。\n\n## 邮件通知规则\n\n- 仅在检测到“新活动”时发送邮件。\n- 同一进程内，登录失效提醒会做去重，避免反复轰炸。\n\n## 常见问题\n\n1. 筛选失败\n- 检查 `page_selectors.py` 中的筛选项文本与页面实际文本是否一致。\n- 用 `playwright codegen https://v.ruc.edu.cn/campus#/search` 辅助定位。\n\n2. 登录后仍提示失效\n- 适当增大：\n  - `timeouts.login_check_delay_ms`\n  - `timeouts.login_recover_retry_count`\n  - `timeouts.login_recover_retry_wait_ms`\n\n## 安全提示（重要）\n\n- `config.json` 含邮箱敏感信息，不应提交到 GitHub（已在 `.gitignore` 忽略）。\n- 邮箱 `password` 应使用授权码，不要使用登录密码。\n- 如果敏感信息曾泄露，建议立即更换授权码。\n\n## 行为边界\n\n- 不自动输入用户名、密码、验证码\n- 不做验证码识别/绕过\n- 不自动报名\nEOF"
+          },
+          "timestamp": "2026-03-18T12:33:34.107Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "sed -n '1,220p' .gitignore"
+          },
+          "timestamp": "2026-03-18T12:33:42.849Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "sed -n '1,320p' README.md"
+          },
+          "timestamp": "2026-03-18T12:33:42.850Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "python -m py_compile main.py monitor.py notifier.py storage.py models.py page_selectors.py"
+          },
+          "timestamp": "2026-03-18T12:33:42.850Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "ls -la data logs"
+          },
+          "timestamp": "2026-03-18T12:33:42.851Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "git status --short"
+          },
+          "timestamp": "2026-03-18T12:33:49.207Z"
+        },
+        {
+          "type": "assistant",
+          "text": "已整理完成，适合直接准备开源发布。\n\n已更新文件：\n- 最终版说明文档：[README.md](/home/yuxuan/Desktop/study/2th/LectureMonitor/README.md)\n- 忽略规则：[.gitignore](/home/yuxuan/Desktop/study/2th/LectureMonitor/.gitignore)\n- 目录占位文件：[data/.gitkeep](/home/yuxuan/Desktop/study/2th/LectureMonitor/data/.gitkeep)\n- 目录占位文件：[logs/.gitkeep](/home/yuxuan/Desktop/study/2th/LectureMonitor/logs/.gitkeep)\n\n我还确认了代码语法可通过：\n- `python -m py_compile main.py monitor.py notifier.py storage.py models.py page_selectors.py`\n\n注意事项：\n- 你当前目录还不是 git 仓库（`git status` 报错）。\n- `config.json` 已被 `.gitignore` 忽略，不会被提交。\n- 你的 `config.json` 里已有真实邮箱授权码，建议先更换一次授权码再公开仓库。\n\n你现在可以直接按下面步骤 push：\n\n```bash\ncd /home/yuxuan/Desktop/study/2th/LectureMonitor\ngit init\ngit branch -M main\ngit add .\ngit commit -m \"feat: finalize lecture monitor project structure and docs\"\ngit remote add origin <你的GitHub仓库地址>\ngit push -u origin main\n```\n\n如果你愿意，我下一步可以帮你再补一个 `LICENSE`（比如 MIT）和一个简短的 `CONTRIBUTING.md`。",
+          "timestamp": "2026-03-18T12:34:15.209Z"
+        },
+        {
+          "type": "user",
+          "text": "补一个mit license",
+          "timestamp": "2026-03-18T12:36:46.897Z"
+        },
+        {
+          "type": "assistant",
+          "text": "我来直接补一个标准 MIT License 文件，默认版权人先写成 `Yuxuan`、年份用当前 `2026`。稍后你如果想改成真实姓名/组织名，我可以再帮你一键替换。",
+          "timestamp": "2026-03-18T12:37:47.035Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "cat > LICENSE <<'EOF'\nMIT License\n\nCopyright (c) 2026 Yuxuan\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\nEOF"
+          },
+          "timestamp": "2026-03-18T12:37:55.547Z"
+        },
+        {
+          "type": "assistant",
+          "text": "已补好 MIT License：  \n[LICENSE](/home/yuxuan/Desktop/study/2th/LectureMonitor/LICENSE)\n\n当前写的是：\n- 年份：`2026`\n- 版权人：`Yuxuan`\n\n如果你要改成你的真实姓名或 GitHub 组织名，我可以马上帮你改。",
+          "timestamp": "2026-03-18T12:38:09.914Z"
+        },
+        {
+          "type": "user",
+          "text": "<environment_context>\n  <shell>zsh</shell>\n  <current_date>2026-03-19</current_date>\n  <timezone>Asia/Shanghai</timezone>\n</environment_context>",
+          "timestamp": "2026-03-19T02:15:22.292Z"
+        },
+        {
+          "type": "user",
+          "text": "现在要做的一个优化是：在发送的邮件里增加能直达活动的网页链接",
+          "timestamp": "2026-03-19T02:15:22.294Z"
+        },
+        {
+          "type": "assistant",
+          "text": "这个优化很实用。我会做三步：  \n1) 解析活动列表时提取活动详情链接（并把相对 `#/activity/...` 转成可直接打开的完整 URL）  \n2) 在邮件正文里加入“直达链接”  \n3) 同步把链接写入历史记录，避免信息丢失。  \n我现在开始改模型、解析逻辑和通知模块。",
+          "timestamp": "2026-03-19T02:15:54.873Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: models.py\n@@\n @dataclass\n class Activity:\n-    \"\"\"单条活动信息（第一阶段只保留展示所需字段）。\"\"\"\n+    \"\"\"单条活动信息。\"\"\"\n \n     title: str\n     status: str\n     time_text: str\n+    detail_url: str = \"\"\n*** End Patch\n",
+          "timestamp": "2026-03-19T02:15:56.582Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: monitor.py\n@@\n import logging\n import re\n from pathlib import Path\n from typing import Any, Optional\n+from urllib.parse import urljoin\n@@\n     def __init__(self, config: dict[str, Any]):\n         self.url = config[\"url\"]\n+        self.url_without_hash = self.url.split(\"#\", 1)[0]\n@@\n     def _extract_activity(self, row: Locator) -> Optional[Activity]:\n         \"\"\"从单行中提取活动字段。\"\"\"\n         row_text = self._safe_inner_text(row)\n         if not row_text:\n             return None\n@@\n         status = self._extract_status(row_text)\n         time_text = self._extract_time(row_text)\n-        return Activity(title=title, status=status, time_text=time_text)\n+        detail_url = self._extract_detail_url(row)\n+        return Activity(title=title, status=status, time_text=time_text, detail_url=detail_url)\n@@\n     def _safe_inner_text(self, locator: Locator) -> str:\n         \"\"\"安全读取文本，避免因局部节点异常导致整体流程中断。\"\"\"\n         try:\n             return locator.inner_text(timeout=800).strip()\n         except PlaywrightTimeoutError:\n             return \"\"\n+\n+    def _extract_detail_url(self, row: Locator) -> str:\n+        \"\"\"提取活动详情链接并转换为可直达 URL。\"\"\"\n+        anchors = row.locator(\"a[href]\")\n+        count = anchors.count()\n+        if count == 0:\n+            return \"\"\n+\n+        # 优先选择更像详情页的链接\n+        for idx in range(min(count, 8)):\n+            href = anchors.nth(idx).get_attribute(\"href\")\n+            normalized = self._normalize_url(href)\n+            if \"/activity/\" in normalized or \"partakedetail\" in normalized:\n+                return normalized\n+\n+        first_href = anchors.first.get_attribute(\"href\")\n+        return self._normalize_url(first_href)\n+\n+    def _normalize_url(self, href: Optional[str]) -> str:\n+        \"\"\"将页面中的相对链接转为完整可访问链接。\"\"\"\n+        if href is None:\n+            return \"\"\n+\n+        clean_href = href.strip()\n+        if not clean_href:\n+            return \"\"\n+        if clean_href.lower().startswith(\"javascript:\"):\n+            return \"\"\n+        if clean_href.startswith(\"#\"):\n+            return f\"{self.url_without_hash}{clean_href}\"\n+\n+        return urljoin(self.url, clean_href)\n*** End Patch\n",
+          "timestamp": "2026-03-19T02:16:09.182Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: notifier.py\n@@\n         for index, activity in enumerate(activities, start=1):\n             body_lines.append(f\"{index}. 标题：{activity.title}\")\n             body_lines.append(f\"   状态：{activity.status}\")\n             body_lines.append(f\"   时间：{activity.time_text}\")\n+            if activity.detail_url:\n+                body_lines.append(f\"   链接：{activity.detail_url}\")\n+            else:\n+                body_lines.append(\"   链接：未解析到活动直达链接\")\n             body_lines.append(\"\")\n*** End Patch\n",
+          "timestamp": "2026-03-19T02:16:15.222Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: storage.py\n@@\n         return {\n             \"title\": activity.title,\n             \"status\": activity.status,\n             \"time_text\": activity.time_text,\n+            \"detail_url\": activity.detail_url,\n             \"first_seen_at\": first_seen_at,\n             \"last_seen_at\": seen_at,\n         }\n*** End Patch\n",
+          "timestamp": "2026-03-19T02:16:23.838Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: main.py\n@@\n     for index, activity in enumerate(activities, start=1):\n         print(f\"{index}. 标题: {activity.title}\")\n         print(f\"   状态: {activity.status}\")\n         print(f\"   时间: {activity.time_text}\")\n+        if activity.detail_url:\n+            print(f\"   链接: {activity.detail_url}\")\n*** End Patch\n",
+          "timestamp": "2026-03-19T02:16:30.525Z"
+        },
+        {
+          "type": "assistant",
+          "text": "我已经把链接提取与邮件注入逻辑接上了。最后再补一行 README 说明，并做语法检查，确保这次改动可以直接用。",
+          "timestamp": "2026-03-19T02:16:36.967Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: README.md\n@@\n - 仅对“新活动”发送 SMTP 邮件通知\n+- 邮件中包含活动直达链接（可直接打开活动详情页）\n*** End Patch\n",
+          "timestamp": "2026-03-19T02:16:38.363Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "python -m py_compile main.py monitor.py notifier.py storage.py models.py page_selectors.py"
+          },
+          "timestamp": "2026-03-19T02:16:42.563Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "rg -n \"detail_url|链接：|_extract_detail_url|_normalize_url\" main.py monitor.py notifier.py storage.py models.py README.md"
+          },
+          "timestamp": "2026-03-19T02:16:42.564Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "nl -ba monitor.py | sed -n '286,390p'"
+          },
+          "timestamp": "2026-03-19T02:16:48.365Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "nl -ba notifier.py | sed -n '30,70p'"
+          },
+          "timestamp": "2026-03-19T02:16:48.366Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "nl -ba models.py | sed -n '1,40p'"
+          },
+          "timestamp": "2026-03-19T02:16:48.421Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "nl -ba main.py | sed -n '60,90p'"
+          },
+          "timestamp": "2026-03-19T02:16:48.422Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "nl -ba storage.py | sed -n '74,95p'"
+          },
+          "timestamp": "2026-03-19T02:16:48.429Z"
+        },
+        {
+          "type": "assistant",
+          "text": "这个优化已经加好了，现在新活动邮件里会带“直达活动详情页”的链接。\n\n主要改动：\n- 活动模型新增链接字段 `detail_url`：  \n  [models.py](/home/yuxuan/Desktop/study/2th/LectureMonitor/models.py#L4)\n- 解析列表时提取 `<a href>`，并把 `#/activity/...` 转成完整可访问链接：  \n  [monitor.py](/home/yuxuan/Desktop/study/2th/LectureMonitor/monitor.py#L352)\n- 邮件正文新增“链接”行：  \n  [notifier.py](/home/yuxuan/Desktop/study/2th/LectureMonitor/notifier.py#L38)\n- 终端输出也会打印链接（便于调试）：  \n  [main.py](/home/yuxuan/Desktop/study/2th/LectureMonitor/main.py#L67)\n- 历史记录中也保存链接字段：  \n  [storage.py](/home/yuxuan/Desktop/study/2th/LectureMonitor/storage.py#L78)\n\n补充说明：\n- 如果某条活动没解析到链接，邮件里会显示“未解析到活动直达链接”。\n- 语法检查已通过：`python -m py_compile main.py monitor.py notifier.py storage.py models.py page_selectors.py`。\n\n如果你愿意，我下一步可以把邮件里的链接改成“可点击的 HTML 邮件按钮”样式。",
+          "timestamp": "2026-03-19T02:16:59.262Z"
+        },
+        {
+          "type": "user",
+          "text": "有一个小问题是有时候即使登录了但是网页也会被学校网站重定向，我的想法是在第一次未检测到目标页面的时候先自动重新输一下网址",
+          "timestamp": "2026-03-19T02:30:27.075Z"
+        },
+        {
+          "type": "assistant",
+          "text": "这个想法很好，我来把它做成“首次检测不到筛选区时，先自动再跳一次目标 URL 再判断”，这样能覆盖被学校统一门户临时重定向的情况。马上改 `monitor.py` 并做语法检查。",
+          "timestamp": "2026-03-19T02:30:47.336Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: monitor.py\n@@\n     def _ensure_login(self, page: Page, allow_manual_login: bool) -> None:\n         \"\"\"检测登录状态；失效时抛出登录异常或进入手动恢复流程。\"\"\"\n         if self._has_search_filters(page):\n             logging.info(\"检测到筛选区域，登录状态可用。\")\n             return\n@@\n         self._wait_before_login_check(page)\n         if self._has_search_filters(page):\n             logging.info(\"重试后检测到筛选区域，登录状态可用。\")\n             return\n+\n+        # 第一次仍未命中时，先主动再跳一次目标页面，处理被统一门户重定向的情况\n+        logging.info(\"仍未检测到筛选区域，尝试主动重新打开目标检索页。\")\n+        page.goto(self.url, wait_until=\"domcontentloaded\", timeout=self.page_load_ms)\n+        self._wait_before_login_check(page)\n+        if self._has_search_filters(page):\n+            logging.info(\"重新打开目标页后检测到筛选区域，登录状态可用。\")\n+            return\n \n         logging.warning(\"暂未检测到筛选区域，可能尚未登录或登录失效。\")\n         if not allow_manual_login:\n             raise LoginRequiredError(\"未检测到筛选区域，当前登录状态可能失效。\")\n*** End Patch\n",
+          "timestamp": "2026-03-19T02:30:56.630Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "python -m py_compile main.py monitor.py notifier.py storage.py models.py page_selectors.py"
+          },
+          "timestamp": "2026-03-19T02:31:03.684Z"
+        },
+        {
+          "type": "assistant",
+          "text": "已按你的思路加好了。\n\n现在流程变成：\n1. 首次检测不到目标筛选区  \n2. 等待页面渲染后再检测一次  \n3. 还不行就**自动重新 `goto` 目标网址一次**  \n4. 再检测，成功就继续，不成功才进入“登录失效”分支\n\n改动位置：\n- [monitor.py](/home/yuxuan/Desktop/study/2th/LectureMonitor/monitor.py) 的 `_ensure_login`\n\n语法检查已通过。  \n这个改动能明显减少“其实已登录但被临时重定向导致误判失效”的情况。",
+          "timestamp": "2026-03-19T02:31:08.407Z"
+        },
+        {
+          "type": "user",
+          "text": "现在的问题是：我把vscode窗口最小化去做别的事，每隔一段时间脚本就会打开一个浏览器窗口，然后这新的窗口会直接弹出来。有什么办法可以优化",
+          "timestamp": "2026-03-19T02:47:47.321Z"
+        },
+        {
+          "type": "assistant",
+          "text": "可以优化，而且我建议直接改成“浏览器实例复用”：脚本启动后只打开一次浏览器，后续每轮只在同一个页面里刷新查询，不再每次新开窗口。这样基本能解决你说的周期性弹窗抢焦点问题。  \n我现在就改这部分。",
+          "timestamp": "2026-03-19T02:48:17.968Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: monitor.py\n@@\n from pathlib import Path\n from typing import Any, Optional\n from urllib.parse import urljoin\n \n-from playwright.sync_api import Locator, Page, TimeoutError as PlaywrightTimeoutError, sync_playwright\n+from playwright.sync_api import (\n+    BrowserContext,\n+    Locator,\n+    Page,\n+    Playwright,\n+    TimeoutError as PlaywrightTimeoutError,\n+    sync_playwright,\n+)\n@@\n class LectureMonitor:\n@@\n         self.login_recover_retry_count = int(timeout_config.get(\"login_recover_retry_count\", 4))\n         self.login_recover_retry_wait_ms = int(timeout_config.get(\"login_recover_retry_wait_ms\", 2000))\n \n         self.profile_dir.mkdir(parents=True, exist_ok=True)\n+        self._playwright_manager = None\n+        self._playwright: Optional[Playwright] = None\n+        self._context: Optional[BrowserContext] = None\n+        self._page: Optional[Page] = None\n \n     def run_once(self, allow_manual_login: bool = False) -> list[Activity]:\n         \"\"\"执行一次完整流程：进入页面、筛选、查询、解析结果。\"\"\"\n-        with sync_playwright() as playwright:\n-            context = playwright.chromium.launch_persistent_context(\n-                user_data_dir=str(self.profile_dir),\n-                headless=self.headless,\n-                slow_mo=self.slow_mo_ms,\n-            )\n-\n-            page = context.new_page()\n-            logging.info(\"打开页面: %s\", self.url)\n-            page.goto(self.url, wait_until=\"domcontentloaded\", timeout=self.page_load_ms)\n-            self._wait_before_login_check(page)\n-\n-            self._ensure_login(page, allow_manual_login=allow_manual_login)\n-            self._apply_filters(page)\n-            self._click_query(page)\n-\n-            activities = self._parse_activities(page)\n-            logging.info(\"本次解析到 %d 条活动\", len(activities))\n-\n-            context.close()\n-            return activities\n+        page = self._ensure_browser()\n+        logging.info(\"打开页面: %s\", self.url)\n+        page.goto(self.url, wait_until=\"domcontentloaded\", timeout=self.page_load_ms)\n+        self._wait_before_login_check(page)\n+\n+        self._ensure_login(page, allow_manual_login=allow_manual_login)\n+        self._apply_filters(page)\n+        self._click_query(page)\n+\n+        activities = self._parse_activities(page)\n+        logging.info(\"本次解析到 %d 条活动\", len(activities))\n+        return activities\n+\n+    def close(self) -> None:\n+        \"\"\"关闭长期复用的浏览器资源。\"\"\"\n+        if self._context is not None:\n+            try:\n+                self._context.close()\n+            except Exception:\n+                pass\n+            self._context = None\n+            self._page = None\n+\n+        if self._playwright_manager is not None:\n+            try:\n+                self._playwright_manager.stop()\n+            except Exception:\n+                pass\n+            self._playwright_manager = None\n+            self._playwright = None\n+\n+    def _ensure_browser(self) -> Page:\n+        \"\"\"确保浏览器上下文已启动并复用同一页面。\"\"\"\n+        if self._page is not None and not self._page.is_closed():\n+            return self._page\n+\n+        # 兜底清理异常残留资源\n+        self.close()\n+\n+        self._playwright_manager = sync_playwright()\n+        self._playwright = self._playwright_manager.start()\n+        self._context = self._playwright.chromium.launch_persistent_context(\n+            user_data_dir=str(self.profile_dir),\n+            headless=self.headless,\n+            slow_mo=self.slow_mo_ms,\n+        )\n+\n+        if self._context.pages:\n+            self._page = self._context.pages[0]\n+        else:\n+            self._page = self._context.new_page()\n+\n+        return self._page\n*** End Patch\n",
+          "timestamp": "2026-03-19T02:48:35.453Z"
+        },
+        {
+          "type": "assistant",
+          "text": "我已经把监控器改成“单浏览器复用”了。接下来在主程序加一个优雅关闭，保证你停止脚本时能把浏览器资源正常释放。",
+          "timestamp": "2026-03-19T02:48:49.079Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: main.py\n@@\n def main() -> None:\n     args = parse_args()\n     setup_logging()\n+    monitor: LectureMonitor | None = None\n \n     try:\n         config = load_config(Path(args.config))\n         check_interval_minutes, monitor_start_hour, monitor_end_hour = get_runtime_config(config)\n \n-        monitor = LectureMonitor(config)\n+        monitor = LectureMonitor(config)\n         storage = ActivityStorage()\n         notifier = EmailNotifier(config.get(\"email\"))\n@@\n     except KeyboardInterrupt:\n         logging.info(\"收到中断信号，脚本结束。\")\n     except Exception as exc:\n         logging.exception(\"运行失败: %s\", exc)\n         raise\n+    finally:\n+        if monitor is not None:\n+            monitor.close()\n*** End Patch\n",
+          "timestamp": "2026-03-19T02:48:51.810Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "python -m py_compile main.py monitor.py notifier.py storage.py models.py page_selectors.py"
+          },
+          "timestamp": "2026-03-19T02:48:56.279Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "rg -n \"_ensure_browser|def close\\(|sync_playwright\\(\\)|finally:|monitor.close\\(\\)\" main.py monitor.py"
+          },
+          "timestamp": "2026-03-19T02:48:56.280Z"
+        },
+        {
+          "type": "assistant",
+          "text": "我再补一条 README 说明“循环时复用同一个浏览器窗口，不会每轮新开窗口”，这样和你这次优化一致。",
+          "timestamp": "2026-03-19T02:49:03.780Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: README.md\n@@\n - 固定时间窗口内自动循环检测\n+- 循环时复用同一个浏览器实例，避免每轮弹出新窗口\n - 登录失效检测与登录失效提醒邮件\n*** End Patch\n",
+          "timestamp": "2026-03-19T02:49:03.781Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "nl -ba monitor.py | sed -n '40,120p'"
+          },
+          "timestamp": "2026-03-19T02:49:14.134Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "nl -ba main.py | sed -n '140,210p'"
+          },
+          "timestamp": "2026-03-19T02:49:14.135Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "nl -ba README.md | sed -n '1,40p'"
+          },
+          "timestamp": "2026-03-19T02:49:14.135Z"
+        },
+        {
+          "type": "assistant",
+          "text": "这个痛点我已经优化了：现在脚本会**复用同一个浏览器实例**，不会每个轮询周期都新开一个窗口。\n\n改动点：\n- 监控器改成长期复用浏览器上下文与页面：  \n  [monitor.py](/home/yuxuan/Desktop/study/2th/LectureMonitor/monitor.py#L51)\n- 新增资源回收 `close()`，主程序退出时统一关闭：  \n  [monitor.py](/home/yuxuan/Desktop/study/2th/LectureMonitor/monitor.py#L66)  \n  [main.py](/home/yuxuan/Desktop/study/2th/LectureMonitor/main.py#L196)\n- README 已同步说明这一行为：  \n  [README.md](/home/yuxuan/Desktop/study/2th/LectureMonitor/README.md#L18)\n\n效果：\n- 脚本启动时会打开一次浏览器。\n- 后续每轮只在同一页面里 `goto` 刷新并查询，不再反复弹新窗口抢焦点。\n\n如果你希望彻底不弹窗口，还可以把 `config.json` 里 `browser.headless` 改成 `true`（但登录失效时你就需要先手动切回可登录模式恢复会话）。",
+          "timestamp": "2026-03-19T02:49:26.118Z"
+        },
+        {
+          "type": "user",
+          "text": "目前我好像没有收到登录失效邮件，修一下。",
+          "timestamp": "2026-03-19T03:06:16.974Z"
+        },
+        {
+          "type": "assistant",
+          "text": "你提得很关键，我看了当前逻辑，确实有一个会导致“你看起来没收到失效邮件”的问题：  \n- 只有抛 `LoginRequiredError` 才会走失效邮件分支；  \n- 而你现在默认是“允许手动登录恢复”，很多情况下不会抛异常，因此失效提醒不会触发。  \n另外还有一个 bug：邮件发送失败时也会被当成“已提醒”，后续不再重试。\n\n我会一起修这两点：  \n1) 只要检测到登录失效迹象，就立即触发提醒回调（不依赖是否抛异常）；  \n2) 失效邮件发送失败时，不标记为“已提醒”，下轮继续重试。",
+          "timestamp": "2026-03-19T03:07:16.805Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: monitor.py\n@@\n from pathlib import Path\n-from typing import Any, Optional\n+from typing import Any, Callable, Optional\n@@\n-    def run_once(self, allow_manual_login: bool = False) -> list[Activity]:\n+    def run_once(\n+        self,\n+        allow_manual_login: bool = False,\n+        on_login_invalid: Optional[Callable[[str], None]] = None,\n+    ) -> list[Activity]:\n         \"\"\"执行一次完整流程：进入页面、筛选、查询、解析结果。\"\"\"\n         page = self._ensure_browser()\n         logging.info(\"打开页面: %s\", self.url)\n         page.goto(self.url, wait_until=\"domcontentloaded\", timeout=self.page_load_ms)\n         self._wait_before_login_check(page)\n \n-        self._ensure_login(page, allow_manual_login=allow_manual_login)\n+        self._ensure_login(\n+            page,\n+            allow_manual_login=allow_manual_login,\n+            on_login_invalid=on_login_invalid,\n+        )\n         self._apply_filters(page)\n         self._click_query(page)\n@@\n-    def _ensure_login(self, page: Page, allow_manual_login: bool) -> None:\n+    def _ensure_login(\n+        self,\n+        page: Page,\n+        allow_manual_login: bool,\n+        on_login_invalid: Optional[Callable[[str], None]] = None,\n+    ) -> None:\n         \"\"\"检测登录状态；失效时抛出登录异常或进入手动恢复流程。\"\"\"\n         if self._has_search_filters(page):\n             logging.info(\"检测到筛选区域，登录状态可用。\")\n             return\n@@\n         if self._has_search_filters(page):\n             logging.info(\"重新打开目标页后检测到筛选区域，登录状态可用。\")\n             return\n \n-        logging.warning(\"暂未检测到筛选区域，可能尚未登录或登录失效。\")\n+        reason = \"未检测到筛选区域，当前登录状态可能失效。\"\n+        logging.warning(\"暂未检测到筛选区域，可能尚未登录或登录失效。\")\n+        if on_login_invalid is not None:\n+            try:\n+                on_login_invalid(reason)\n+            except Exception as exc:\n+                logging.exception(\"登录失效回调执行失败: %s\", exc)\n+\n         if not allow_manual_login:\n-            raise LoginRequiredError(\"未检测到筛选区域，当前登录状态可能失效。\")\n+            raise LoginRequiredError(reason)\n*** End Patch\n",
+          "timestamp": "2026-03-19T03:07:27.245Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: main.py\n@@\n def run_single_cycle(\n     monitor: LectureMonitor,\n     storage: ActivityStorage,\n     notifier: EmailNotifier,\n     allow_manual_login: bool,\n@@\n ) -> bool:\n     \"\"\"执行一轮检测，返回更新后的登录失效提醒状态。\"\"\"\n     logging.info(\"开始新一轮检查。\")\n+    login_alert_sent_next = login_alert_sent\n+    login_alert_notified_this_cycle = False\n+\n+    def handle_login_invalid(reason: str) -> None:\n+        nonlocal login_alert_sent_next, login_alert_notified_this_cycle\n+        logging.warning(\"检测到登录失效: %s\", reason)\n+        if login_alert_sent_next:\n+            logging.info(\"登录失效提醒邮件已发送过，本轮不重复发送。\")\n+            login_alert_notified_this_cycle = True\n+            return\n+\n+        sent = notifier.notify_login_invalid(reason)\n+        if sent:\n+            login_alert_sent_next = True\n+        else:\n+            logging.warning(\"登录失效提醒邮件发送失败，本轮结束后会继续重试。\")\n+        login_alert_notified_this_cycle = True\n \n     try:\n-        activities = monitor.run_once(allow_manual_login=allow_manual_login)\n+        activities = monitor.run_once(\n+            allow_manual_login=allow_manual_login,\n+            on_login_invalid=handle_login_invalid,\n+        )\n \n     except LoginRequiredError as exc:\n-        logging.warning(\"检测到登录失效: %s\", exc)\n-        if not login_alert_sent:\n-            notifier.notify_login_invalid(str(exc))\n-            return True\n-\n-        logging.info(\"登录失效提醒邮件已发送过，本轮不重复发送。\")\n-        return True\n+        if not login_alert_notified_this_cycle:\n+            handle_login_invalid(str(exc))\n+        return login_alert_sent_next\n \n     except Exception as exc:\n         logging.exception(\"本轮检查发生异常: %s\", exc)\n-        return login_alert_sent\n+        return login_alert_sent_next\n@@\n     if new_activities:\n         notifier.notify_new_activities(new_activities)\n     else:\n         logging.info(\"本次没有新活动，不触发邮件通知。\")\n \n+    # 本轮成功跑通，登录失效提醒状态重置，供未来真正失效时再次提醒\n     return False\n*** End Patch\n",
+          "timestamp": "2026-03-19T03:07:40.147Z"
+        },
+        {
+          "type": "assistant",
+          "text": "我已经把核心逻辑修完了：现在登录失效提醒不再依赖异常路径，且发送失败会继续重试。  \n我再跑一次语法检查确保可运行。",
+          "timestamp": "2026-03-19T03:07:54.895Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "python -m py_compile main.py monitor.py notifier.py storage.py models.py page_selectors.py"
+          },
+          "timestamp": "2026-03-19T03:07:54.898Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "rg -n \"on_login_invalid|handle_login_invalid|login_alert_sent_next|notify_login_invalid\\(\" main.py monitor.py"
+          },
+          "timestamp": "2026-03-19T03:07:54.931Z"
+        },
+        {
+          "type": "assistant",
+          "text": "你这个问题我已经修掉了，核心修复有两点：\n\n1. 现在**只要检测到登录失效迹象就会触发提醒**，不再依赖必须抛异常  \n2. 登录失效邮件**发送失败时不会误标记为“已提醒”**，下一轮会继续重试\n\n改动位置：\n- 登录失效回调接入到监控流程：  \n  [monitor.py](/home/yuxuan/Desktop/study/2th/LectureMonitor/monitor.py#L51)\n- 主循环中统一处理失效提醒与重试状态：  \n  [main.py](/home/yuxuan/Desktop/study/2th/LectureMonitor/main.py#L101)\n\n这次修复后，即使你用默认“等待手动登录恢复”的模式，也会在检测到失效时触发邮件逻辑。\n\n语法检查已通过。  \n如果你还收不到，我下一步可以帮你把 SMTP 发送过程再加一层“详细调试日志（host/port/ssl/异常分类）”，方便精准定位是被拦截还是认证失败。",
+          "timestamp": "2026-03-19T03:08:09.366Z"
+        },
+        {
+          "type": "user",
+          "text": "能不能把一个邮件同时发给几个邮箱？",
+          "timestamp": "2026-03-19T03:17:52.941Z"
+        },
+        {
+          "type": "assistant",
+          "text": "可以，支持同时发给多个邮箱。  \n我直接给你改成“向后兼容”模式：既支持原来的 `receiver`（单个），也支持新增 `receivers`（多个）。",
+          "timestamp": "2026-03-19T03:18:08.797Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: notifier.py\n@@\n class EmailNotifier:\n@@\n     def _validate_config(self) -> tuple[bool, list[str]]:\n         required_fields = [\n             \"smtp_host\",\n             \"smtp_port\",\n             \"sender\",\n             \"password\",\n-            \"receiver\",\n         ]\n \n         missing_fields: list[str] = []\n         for field in required_fields:\n             value = self.email_config.get(field)\n             if value is None or str(value).strip() == \"\":\n                 missing_fields.append(field)\n \n+        if not self._get_receivers():\n+            missing_fields.append(\"receiver/receivers\")\n+\n         return len(missing_fields) == 0, missing_fields\n \n     def _build_message(self, subject: str, body: str) -> EmailMessage:\n         sender = str(self.email_config.get(\"sender\"))\n-        receiver = str(self.email_config.get(\"receiver\"))\n+        receivers = self._get_receivers()\n \n         message = EmailMessage()\n         message[\"From\"] = sender\n-        message[\"To\"] = receiver\n+        message[\"To\"] = \", \".join(receivers)\n         message[\"Subject\"] = subject\n         message.set_content(body)\n         return message\n+\n+    def _get_receivers(self) -> list[str]:\n+        \"\"\"读取收件人列表，兼容 receiver(单个) 和 receivers(多个)。\"\"\"\n+        raw_receivers = self.email_config.get(\"receivers\")\n+        candidates: list[str] = []\n+\n+        if isinstance(raw_receivers, list):\n+            for item in raw_receivers:\n+                text = str(item).strip()\n+                if text:\n+                    candidates.append(text)\n+        elif isinstance(raw_receivers, str):\n+            for part in raw_receivers.replace(\";\", \",\").split(\",\"):\n+                text = part.strip()\n+                if text:\n+                    candidates.append(text)\n+\n+        # 向后兼容旧字段 receiver\n+        raw_receiver = self.email_config.get(\"receiver\")\n+        if raw_receiver is not None:\n+            text = str(raw_receiver).strip()\n+            if text:\n+                candidates.append(text)\n+\n+        # 去重并保持顺序\n+        deduped: list[str] = []\n+        seen: set[str] = set()\n+        for email in candidates:\n+            key = email.lower()\n+            if key in seen:\n+                continue\n+            seen.add(key)\n+            deduped.append(email)\n+        return deduped\n*** End Patch\n",
+          "timestamp": "2026-03-19T03:18:16.065Z"
+        },
+        {
+          "type": "assistant",
+          "text": "我再把配置模板和 README 一起补上“多收件人”写法，方便你直接改配置。",
+          "timestamp": "2026-03-19T03:18:19.692Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: config.example.json\n@@\n   \"email\": {\n     \"smtp_host\": \"smtp.example.com\",\n     \"smtp_port\": 465,\n     \"sender\": \"your_email@example.com\",\n     \"password\": \"your_app_password\",\n-    \"receiver\": \"your_email@example.com\",\n+    \"receiver\": \"your_email@example.com\",\n+    \"receivers\": [\n+      \"your_email@example.com\",\n+      \"another_email@example.com\"\n+    ],\n     \"use_ssl\": true\n   }\n }\n*** End Patch\n",
+          "timestamp": "2026-03-19T03:18:22.141Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: README.md\n@@\n   \"email\": {\n     \"smtp_host\": \"smtp.example.com\",\n     \"smtp_port\": 465,\n     \"sender\": \"your_email@example.com\",\n     \"password\": \"your_app_password\",\n     \"receiver\": \"your_email@example.com\",\n+    \"receivers\": [\n+      \"your_email@example.com\",\n+      \"another_email@example.com\"\n+    ],\n     \"use_ssl\": true\n   }\n }\n@@\n - `check_interval_minutes`：轮询间隔（分钟）\n - `monitor_start_hour` / `monitor_end_hour`：监控时段（按小时）\n - `timeouts.login_check_delay_ms`：登录检测前额外等待，避免误判\n - `timeouts.login_recover_retry_count`：登录后自动回跳目标页重试次数\n - `timeouts.login_recover_retry_wait_ms`：重试间隔\n+- `email.receiver` / `email.receivers`：收件人（支持单个或多个）\n*** End Patch\n",
+          "timestamp": "2026-03-19T03:18:32.387Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "python -m py_compile main.py monitor.py notifier.py storage.py models.py page_selectors.py"
+          },
+          "timestamp": "2026-03-19T03:18:38.164Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "rg -n \"receiver/receivers|_get_receivers|receivers\" notifier.py config.example.json README.md"
+          },
+          "timestamp": "2026-03-19T03:18:38.165Z"
+        },
+        {
+          "type": "assistant",
+          "text": "可以，已经支持了。\n\n现在你有两种写法：\n1. 单个邮箱：`email.receiver`\n2. 多个邮箱：`email.receivers`（数组或逗号分隔字符串）\n\n我做了兼容逻辑：\n- `receiver` 和 `receivers` 会合并去重后一起发送\n- `receivers` 支持 `[\"a@xx.com\",\"b@xx.com\"]` 或 `\"a@xx.com,b@xx.com\"`\n\n示例（推荐）：\n```json\n\"email\": {\n  \"smtp_host\": \"smtp.qq.com\",\n  \"smtp_port\": 465,\n  \"sender\": \"xxx@qq.com\",\n  \"password\": \"授权码\",\n  \"receivers\": [\n    \"a@example.com\",\n    \"b@example.com\"\n  ],\n  \"use_ssl\": true\n}\n```\n\n相关改动：\n- [notifier.py](/home/yuxuan/Desktop/study/2th/LectureMonitor/notifier.py)\n- [config.example.json](/home/yuxuan/Desktop/study/2th/LectureMonitor/config.example.json)\n- [README.md](/home/yuxuan/Desktop/study/2th/LectureMonitor/README.md)\n\n语法检查已通过。",
+          "timestamp": "2026-03-19T03:18:46.517Z"
+        },
+        {
+          "type": "user",
+          "text": "简单一点，直接把单个receiver删掉吧",
+          "timestamp": "2026-03-19T03:20:48.308Z"
+        },
+        {
+          "type": "assistant",
+          "text": "明白，我给你做成“只保留 `receivers` 多收件人字段”，删除 `receiver` 的兼容逻辑，并同步更新示例配置和 README。接下来我直接改代码并做一次语法检查。",
+          "timestamp": "2026-03-19T03:21:10.461Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "rg -n \"receiver|receivers|receiver/receivers\" notifier.py config.example.json config.json README.md"
+          },
+          "timestamp": "2026-03-19T03:21:10.462Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "sed -n '70,170p' notifier.py"
+          },
+          "timestamp": "2026-03-19T03:21:10.498Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "sed -n '80,150p' README.md && echo '---' && cat config.example.json && echo '---' && cat config.json"
+          },
+          "timestamp": "2026-03-19T03:21:10.499Z"
+        },
+        {
+          "type": "assistant",
+          "text": "我会把 `receiver` 完全移除：代码只认 `receivers`，配置示例和 README 也统一改成 `receivers`。改完我会顺手做一次语法检查。",
+          "timestamp": "2026-03-19T03:21:14.281Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: notifier.py\n@@\n-        if not self._get_receivers():\n-            missing_fields.append(\"receiver/receivers\")\n+        if not self._get_receivers():\n+            missing_fields.append(\"receivers\")\n@@\n     def _get_receivers(self) -> list[str]:\n-        \"\"\"读取收件人列表，兼容 receiver(单个) 和 receivers(多个)。\"\"\"\n+        \"\"\"读取收件人列表，仅支持 receivers。\"\"\"\n         raw_receivers = self.email_config.get(\"receivers\")\n         candidates: list[str] = []\n@@\n-        # 向后兼容旧字段 receiver\n-        raw_receiver = self.email_config.get(\"receiver\")\n-        if raw_receiver is not None:\n-            text = str(raw_receiver).strip()\n-            if text:\n-                candidates.append(text)\n-\n         # 去重并保持顺序\n*** End Patch\n",
+          "timestamp": "2026-03-19T03:21:18.443Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "python - <<'PY'\nimport json\nfrom pathlib import Path\n\nfor name in ['config.example.json', 'config.json']:\n    p = Path(name)\n    data = json.loads(p.read_text(encoding='utf-8'))\n    email = data.setdefault('email', {})\n    if 'receiver' in email:\n        email.pop('receiver', None)\n    p.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\\n', encoding='utf-8')\nPY"
+          },
+          "timestamp": "2026-03-19T03:21:29.209Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "python - <<'PY'\nfrom pathlib import Path\np = Path('README.md')\ntext = p.read_text(encoding='utf-8')\ntext = text.replace('    \"receiver\": \"your_email@example.com\",\\n', '')\ntext = text.replace('- `email.receiver` / `email.receivers`：收件人（支持单个或多个）\\n', '- `email.receivers`：收件人列表（支持多个）\\n')\ntext = text.replace('  \"receiver\": \"your_email@qq.com\",\\n', '')\np.write_text(text, encoding='utf-8')\nPY"
+          },
+          "timestamp": "2026-03-19T03:21:29.210Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "python -m py_compile main.py monitor.py notifier.py storage.py models.py page_selectors.py"
+          },
+          "timestamp": "2026-03-19T03:21:29.210Z"
+        },
+        {
+          "type": "assistant",
+          "text": "我再快速核对一遍，确保项目里已经没有 `receiver` 残留字段。",
+          "timestamp": "2026-03-19T03:21:39.274Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "rg -n \"\\breceiver\\b|receiver/receivers\" notifier.py config.example.json config.json README.md"
+          },
+          "timestamp": "2026-03-19T03:21:39.275Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "cat config.example.json && echo '---' && cat config.json"
+          },
+          "timestamp": "2026-03-19T03:21:39.275Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "sed -n '88,145p' README.md"
+          },
+          "timestamp": "2026-03-19T03:21:39.283Z"
+        },
+        {
+          "type": "assistant",
+          "text": "我发现 README 里的 QQ 示例把 `receivers` 也删掉了，我补一行，避免你按文档配置时漏填收件人。",
+          "timestamp": "2026-03-19T03:21:46.087Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: README.md\n@@\n \"email\": {\n   \"smtp_host\": \"smtp.qq.com\",\n   \"smtp_port\": 465,\n   \"sender\": \"your_email@qq.com\",\n   \"password\": \"your_app_password\",\n+  \"receivers\": [\n+    \"your_email@qq.com\"\n+  ],\n   \"use_ssl\": true\n }\n ```\n*** End Patch\n",
+          "timestamp": "2026-03-19T03:21:47.120Z"
+        },
+        {
+          "type": "assistant",
+          "text": "已改成“只支持 `receivers`”，`receiver` 已全部删除。\n\n已更新：\n- 代码只读取 `email.receivers`：[notifier.py](/home/yuxuan/Desktop/study/2th/LectureMonitor/notifier.py)\n- 示例配置已去掉 `receiver`：[config.example.json](/home/yuxuan/Desktop/study/2th/LectureMonitor/config.example.json)\n- 你的本地配置也去掉了 `receiver`：[config.json](/home/yuxuan/Desktop/study/2th/LectureMonitor/config.json)\n- README 已统一为 `receivers`：[README.md](/home/yuxuan/Desktop/study/2th/LectureMonitor/README.md)\n\n语法检查通过，直接可用。",
+          "timestamp": "2026-03-19T03:21:55.843Z"
+        },
+        {
+          "type": "user",
+          "text": "刚刚有个活动因为改了一下时间而被判断为新活动了，怎么优化一下",
+          "timestamp": "2026-03-19T10:22:50.830Z"
+        },
+        {
+          "type": "assistant",
+          "text": "这个问题本质是“去重键太敏感（把时间也算进去了）”。  \n我会把去重策略改成“优先用活动详情链接作为唯一键”，这样时间变了也不会被当成新活动；同时兼容你旧的历史记录键并自动迁移。 հիմա开始改。",
+          "timestamp": "2026-03-19T10:23:07.695Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: models.py\n@@\n     detail_url: str = \"\"\n \n     def unique_key(self) -> str:\n-        \"\"\"生成活动唯一键（阶段二用于历史记录去重）。\"\"\"\n+        \"\"\"生成活动唯一键（优先稳定字段，避免时间变化误判新活动）。\"\"\"\n+        if self.detail_url.strip():\n+            return f\"url::{self.detail_url.strip()}\"\n+\n+        safe_title = self.title.strip()\n+        if safe_title:\n+            return f\"title::{safe_title}\"\n+\n+        # 最后兜底：保持旧行为\n+        safe_time = self.time_text.strip()\n+        return f\"title_time::{safe_title}||{safe_time}\"\n+\n+    def legacy_unique_key(self) -> str:\n+        \"\"\"历史版本使用的键（title + time），用于兼容老数据迁移。\"\"\"\n         safe_title = self.title.strip()\n         safe_time = self.time_text.strip()\n         return f\"{safe_title}||{safe_time}\"\n*** End Patch\n",
+          "timestamp": "2026-03-19T10:23:12.552Z"
+        },
+        {
+          "type": "assistant",
+          "text": "我接着把 `storage.py` 的比对逻辑改成“新键优先 + 旧键回退 + 自动迁移”，这样你的老历史文件也能平滑衔接。",
+          "timestamp": "2026-03-19T10:23:16.103Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: storage.py\n@@\n         seen_at = datetime.now().isoformat(timespec=\"seconds\")\n         for activity in activities:\n             key = activity.unique_key()\n-            existing = records.get(key)\n+            legacy_key = activity.legacy_unique_key()\n+\n+            existing = records.get(key)\n+            matched_key = key\n+            if existing is None and legacy_key != key:\n+                existing = records.get(legacy_key)\n+                if existing is not None:\n+                    matched_key = legacy_key\n \n             if existing is None:\n                 new_activities.append(activity)\n             else:\n                 ordinary_activities.append(activity)\n+                # 旧键命中时，迁移到新键，避免下一次重复触发“新活动”\n+                if matched_key != key:\n+                    records.pop(matched_key, None)\n \n             records[key] = self._build_record(activity, existing, seen_at)\n*** End Patch\n",
+          "timestamp": "2026-03-19T10:23:19.993Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: README.md\n@@\n - 本地 JSON 历史记录与新活动识别\n+- 去重优先使用活动详情链接（时间变化不会误判为新活动）\n*** End Patch\n",
+          "timestamp": "2026-03-19T10:23:26.058Z"
+        },
+        {
+          "type": "assistant",
+          "text": "我做一个最小验证：模拟“同一个活动只改时间”，确认不会再被判定为新活动，并检查语法。",
+          "timestamp": "2026-03-19T10:23:38.943Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "python -m py_compile main.py monitor.py notifier.py storage.py models.py page_selectors.py"
+          },
+          "timestamp": "2026-03-19T10:23:38.943Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "python - <<'PY'\nimport json\nfrom pathlib import Path\nfrom models import Activity\nfrom storage import ActivityStorage\n\np = Path('data/test_seen_activities.json')\nif p.exists():\n    p.unlink()\n\n# 先写入旧版键（title||time）记录，模拟历史数据\nlegacy_key = '测试讲座||2026-03-20 10:00:00 至 2026-03-20 11:00:00'\nlegacy_data = {\n    legacy_key: {\n        'title': '测试讲座',\n        'status': '未开始',\n        'time_text': '2026-03-20 10:00:00 至 2026-03-20 11:00:00',\n        'first_seen_at': '2026-03-18T10:00:00',\n        'last_seen_at': '2026-03-18T10:00:00'\n    }\n}\np.write_text(json.dumps(legacy_data, ensure_ascii=False, indent=2), encoding='utf-8')\n\nstorage = ActivityStorage(p)\nordinary, new = storage.classify_and_update([\n    Activity(\n        title='测试讲座',\n        status='未开始',\n        time_text='2026-03-21 10:00:00 至 2026-03-21 11:00:00',  # 时间变化\n        detail_url='https://v.ruc.edu.cn/campus#/activity/partakedetail/123/show'\n    )\n])\nprint('ordinary=', len(ordinary), 'new=', len(new))\n\nsaved = json.loads(p.read_text(encoding='utf-8'))\nprint('keys=', list(saved.keys()))\np.unlink(missing_ok=True)\nPY"
+          },
+          "timestamp": "2026-03-19T10:23:39.000Z"
+        },
+        {
+          "type": "assistant",
+          "text": "你这个反馈非常关键，我刚做了一个模拟，发现“仅靠旧键回退”还不够，因为旧键里含时间，时间变了就匹配不到。  \n我再补一层“按详情链接/标题回退匹配”，这样旧历史记录也能识别成同一活动。",
+          "timestamp": "2026-03-19T10:23:58.204Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: storage.py\n@@\n         for activity in activities:\n             key = activity.unique_key()\n             legacy_key = activity.legacy_unique_key()\n \n             existing = records.get(key)\n             matched_key = key\n             if existing is None and legacy_key != key:\n                 existing = records.get(legacy_key)\n                 if existing is not None:\n                     matched_key = legacy_key\n+\n+            if existing is None:\n+                matched_key, existing = self._find_fallback_match(records, activity)\n \n             if existing is None:\n                 new_activities.append(activity)\n             else:\n                 ordinary_activities.append(activity)\n@@\n         return ordinary_activities, new_activities\n+\n+    def _find_fallback_match(\n+        self,\n+        records: dict[str, dict[str, Any]],\n+        activity: Activity,\n+    ) -> tuple[str, Optional[dict[str, Any]]]:\n+        \"\"\"兼容旧记录：按 detail_url / title 回退匹配。\"\"\"\n+        normalized_url = activity.detail_url.strip()\n+        normalized_title = activity.title.strip()\n+\n+        for record_key, record in records.items():\n+            if not isinstance(record, dict):\n+                continue\n+\n+            record_url = str(record.get(\"detail_url\", \"\")).strip()\n+            record_title = str(record.get(\"title\", \"\")).strip()\n+\n+            if normalized_url and record_url and normalized_url == record_url:\n+                return record_key, record\n+\n+            if normalized_title and record_title and normalized_title == record_title:\n+                return record_key, record\n+\n+        return \"\", None\n*** End Patch\n",
+          "timestamp": "2026-03-19T10:24:04.466Z"
+        },
+        {
+          "type": "user",
+          "text": "<turn_aborted>\nThe user interrupted the previous turn on purpose. Any running unified exec processes may still be running in the background. If any tools/commands were aborted, they may have partially executed; verify current state before retrying.\n</turn_aborted>",
+          "timestamp": "2026-03-19T10:26:21.110Z"
+        },
+        {
+          "type": "user",
+          "text": "有个问题：现在我用有头浏览器可以正常跑，但用无头浏览器就会报timeout，怎么办",
+          "timestamp": "2026-03-19T10:50:02.717Z"
+        },
+        {
+          "type": "user",
+          "text": "<turn_aborted>\nThe user interrupted the previous turn on purpose. Any running unified exec processes may still be running in the background. If any tools/commands were aborted, they may have partially executed; verify current state before retrying.\n</turn_aborted>",
+          "timestamp": "2026-03-19T10:50:58.427Z"
+        },
+        {
+          "type": "user",
+          "text": "<environment_context>\n  <shell>zsh</shell>\n  <current_date>2026-03-22</current_date>\n  <timezone>Asia/Shanghai</timezone>\n</environment_context>",
+          "timestamp": "2026-03-22T03:47:20.777Z"
+        },
+        {
+          "type": "user",
+          "text": "发现在长时间挂起之后会出现“无法定位筛选项”的问题，可能是目标网页加载问题，在首次检测到无法定位筛选项时增加一次刷新目标页",
+          "timestamp": "2026-03-22T03:47:20.778Z"
+        },
+        {
+          "type": "assistant",
+          "text": "我先检查一下当前代码状态（上一轮中断过），然后只改“筛选失败时的首次刷新重试”这一点：首次定位不到筛选项时自动刷新目标页并重跑一遍筛选，再失败才报错。",
+          "timestamp": "2026-03-22T03:47:37.072Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "python -m py_compile main.py monitor.py notifier.py storage.py models.py page_selectors.py"
+          },
+          "timestamp": "2026-03-22T03:47:37.073Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "rg -n \"_apply_filters|筛选失败|无法定位筛选项|_ensure_login\" monitor.py"
+          },
+          "timestamp": "2026-03-22T03:47:37.074Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "sed -n '120,240p' monitor.py"
+          },
+          "timestamp": "2026-03-22T03:47:37.130Z"
+        },
+        {
+          "type": "assistant",
+          "text": "我会把筛选逻辑改成“两段式”：  \n- 第一次筛选失败：自动刷新目标页并重试一次完整筛选  \n- 第二次仍失败：才按原逻辑报错  \n这样正好对应你说的“首次无法定位时先刷新”。",
+          "timestamp": "2026-03-22T03:47:52.617Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: monitor.py\n@@\n         self._ensure_login(\n             page,\n             allow_manual_login=allow_manual_login,\n             on_login_invalid=on_login_invalid,\n         )\n-        self._apply_filters(page)\n+        self._apply_filters(\n+            page,\n+            allow_manual_login=allow_manual_login,\n+            on_login_invalid=on_login_invalid,\n+        )\n         self._click_query(page)\n@@\n-    def _apply_filters(self, page: Page) -> None:\n-        \"\"\"按规格依次设置四个筛选项。\"\"\"\n+    def _apply_filters(\n+        self,\n+        page: Page,\n+        allow_manual_login: bool,\n+        on_login_invalid: Optional[Callable[[str], None]] = None,\n+    ) -> None:\n+        \"\"\"按规格设置四个筛选项，首次失败时自动刷新目标页再重试一次。\"\"\"\n+        failed_item = self._apply_filters_once(page)\n+        if failed_item is None:\n+            return\n+\n+        first_label, first_option = failed_item\n+        logging.warning(\n+            \"首次筛选失败：%s -> %s，尝试刷新目标页并重试一次。\",\n+            first_label,\n+            first_option,\n+        )\n+        page.goto(self.url, wait_until=\"domcontentloaded\", timeout=self.page_load_ms)\n+        self._wait_before_login_check(page)\n+        self._ensure_login(\n+            page,\n+            allow_manual_login=allow_manual_login,\n+            on_login_invalid=on_login_invalid,\n+        )\n+\n+        failed_item = self._apply_filters_once(page)\n+        if failed_item is None:\n+            logging.info(\"刷新目标页后，筛选设置成功。\")\n+            return\n+\n+        label, option = failed_item\n+        self._print_filter_debug_tips(label, option)\n+        raise RuntimeError(f\"筛选失败：{label} -> {option}\")\n+\n+    def _apply_filters_once(self, page: Page) -> Optional[tuple[str, str]]:\n+        \"\"\"执行一轮筛选设置，失败时返回失败项。\"\"\"\n         for item in selectors.FILTER_CONFIG:\n             label = item[\"label\"]\n             option = item[\"option\"]\n             logging.info(\"设置筛选：%s -> %s\", label, option)\n             success = self._set_single_filter(page, label, option)\n             if not success:\n-                self._print_filter_debug_tips(label, option)\n-                raise RuntimeError(f\"筛选失败：{label} -> {option}\")\n+                return label, option\n             page.wait_for_timeout(250)\n+\n+        return None\n*** End Patch\n",
+          "timestamp": "2026-03-22T03:48:03.179Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "python -m py_compile main.py monitor.py notifier.py storage.py models.py page_selectors.py"
+          },
+          "timestamp": "2026-03-22T03:48:07.056Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "rg -n \"_apply_filters\\(|_apply_filters_once|首次筛选失败|刷新目标页后\" monitor.py"
+          },
+          "timestamp": "2026-03-22T03:48:10.234Z"
+        },
+        {
+          "type": "assistant",
+          "text": "这个优化已经加上了。\n\n现在行为是：\n- 首次出现“无法定位筛选项”时，不会立刻报错。\n- 脚本会先自动 `goto` 一次目标页并等待加载，再完整重试一轮筛选。\n- 只有重试后还失败，才会按原逻辑报错。\n\n修改位置：\n- 筛选流程改为“首次失败自动刷新重试一次”：  \n  [monitor.py](/home/yuxuan/Desktop/study/2th/LectureMonitor/monitor.py#L174)\n- 新增单轮筛选方法 `_apply_filters_once`：  \n  [monitor.py](/home/yuxuan/Desktop/study/2th/LectureMonitor/monitor.py#L208)\n\n语法检查已通过。  \n你可以先按原命令继续跑，观察日志里是否出现“首次筛选失败…尝试刷新目标页并重试一次”这条信息。",
+          "timestamp": "2026-03-22T03:48:16.461Z"
+        },
+        {
+          "type": "user",
+          "text": "<environment_context>\n  <shell>zsh</shell>\n  <current_date>2026-03-24</current_date>\n  <timezone>Asia/Shanghai</timezone>\n</environment_context>",
+          "timestamp": "2026-03-24T13:21:21.362Z"
+        },
+        {
+          "type": "user",
+          "text": "我已经定位到在长时间挂起之后会出现“无法定位筛选项”的根本原因，可能是由于学校网络不稳定等问题，长时间挂起之后页面会弹出“网络出现问题”的提示框，覆盖在目标页面上，导致筛选项无法选择。同时这个提示框有一个“确认”按钮，所以请你在首次检测到无法定位筛选项的时候，请检测有没有这个确认按钮，按下以后等待一下网页刷新再尝试重新操作。",
+          "timestamp": "2026-03-24T13:21:21.364Z"
+        },
+        {
+          "type": "assistant",
+          "text": "我会按你定位到的根因做针对性修复：在“首次筛选失败”分支里先检测“网络出现问题”弹窗，若存在就点击“确认”并等待页面恢复，再重试筛选；只有仍失败才走原来的刷新目标页兜底。现在开始改代码。",
+          "timestamp": "2026-03-24T13:22:04.748Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "rg -n \"_apply_filters\\(|_apply_filters_once|_print_filter_debug_tips|FILTER_CONFIG\" monitor.py page_selectors.py"
+          },
+          "timestamp": "2026-03-24T13:22:04.748Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "sed -n '1,140p' page_selectors.py"
+          },
+          "timestamp": "2026-03-24T13:22:04.793Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "sed -n '150,260p' monitor.py"
+          },
+          "timestamp": "2026-03-24T13:22:04.794Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: page_selectors.py\n@@\n QUERY_BUTTON_TEXT = \"查询\"\n+\n+# 长时间挂起后可能出现的网络异常提示弹窗\n+NETWORK_ISSUE_KEYWORDS = [\n+    \"网络出现问题\",\n+    \"网络异常\",\n+]\n+NETWORK_ISSUE_CONFIRM_TEXTS = [\n+    \"确认\",\n+    \"确定\",\n+]\n*** End Patch\n",
+          "timestamp": "2026-03-24T13:22:17.683Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "apply_patch",
+          "input": "*** Begin Patch\n*** Update File: monitor.py\n@@\n     def _apply_filters(\n         self,\n         page: Page,\n         allow_manual_login: bool,\n         on_login_invalid: Optional[Callable[[str], None]] = None,\n     ) -> None:\n         \"\"\"按规格设置四个筛选项，首次失败时自动刷新目标页再重试一次。\"\"\"\n         failed_item = self._apply_filters_once(page)\n         if failed_item is None:\n             return\n \n-        first_label, first_option = failed_item\n+        first_label, first_option = failed_item\n+        handled_popup = self._recover_from_network_issue_popup(\n+            page,\n+            allow_manual_login=allow_manual_login,\n+            on_login_invalid=on_login_invalid,\n+        )\n+        if handled_popup:\n+            failed_item = self._apply_filters_once(page)\n+            if failed_item is None:\n+                logging.info(\"处理网络异常弹窗后，筛选设置成功。\")\n+                return\n+            first_label, first_option = failed_item\n+\n         logging.warning(\n             \"首次筛选失败：%s -> %s，尝试刷新目标页并重试一次。\",\n             first_label,\n             first_option,\n         )\n@@\n         label, option = failed_item\n         self._print_filter_debug_tips(label, option)\n         raise RuntimeError(f\"筛选失败：{label} -> {option}\")\n+\n+    def _recover_from_network_issue_popup(\n+        self,\n+        page: Page,\n+        allow_manual_login: bool,\n+        on_login_invalid: Optional[Callable[[str], None]] = None,\n+    ) -> bool:\n+        \"\"\"检测并处理“网络出现问题”弹窗。\"\"\"\n+        has_network_issue = False\n+        for keyword in selectors.NETWORK_ISSUE_KEYWORDS:\n+            if page.get_by_text(keyword, exact=False).count() > 0:\n+                has_network_issue = True\n+                break\n+\n+        if not has_network_issue:\n+            return False\n+\n+        logging.warning(\"检测到网络异常提示弹窗，尝试点击确认并等待页面恢复。\")\n+        clicked = False\n+        for text in selectors.NETWORK_ISSUE_CONFIRM_TEXTS:\n+            if self._try_click_confirm_button(page, text):\n+                clicked = True\n+                break\n+\n+        if not clicked:\n+            logging.warning(\"检测到网络异常提示，但未找到可点击的确认按钮。\")\n+            return False\n+\n+        try:\n+            page.wait_for_load_state(\"domcontentloaded\", timeout=min(self.page_load_ms, 10000))\n+        except PlaywrightTimeoutError:\n+            pass\n+\n+        self._wait_before_login_check(page)\n+        self._ensure_login(\n+            page,\n+            allow_manual_login=allow_manual_login,\n+            on_login_invalid=on_login_invalid,\n+        )\n+        return True\n+\n+    def _try_click_confirm_button(self, page: Page, button_text: str) -> bool:\n+        \"\"\"点击弹窗确认按钮。\"\"\"\n+        try:\n+            button_by_role = page.get_by_role(\"button\", name=button_text)\n+            if button_by_role.count() > 0:\n+                button_by_role.first.click(timeout=self.ui_wait_ms)\n+                return True\n+        except PlaywrightTimeoutError:\n+            pass\n+\n+        try:\n+            button_by_text = page.get_by_text(button_text, exact=True)\n+            if button_by_text.count() > 0:\n+                button_by_text.first.click(timeout=self.ui_wait_ms)\n+                return True\n+        except PlaywrightTimeoutError:\n+            pass\n+\n+        return False\n*** End Patch\n",
+          "timestamp": "2026-03-24T13:22:42.232Z"
+        },
+        {
+          "type": "assistant",
+          "text": "我已经把“网络异常弹窗确认”处理接到首次筛选失败分支了。现在做语法检查并确认关键改动点。",
+          "timestamp": "2026-03-24T13:22:47.843Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "python -m py_compile main.py monitor.py notifier.py storage.py models.py page_selectors.py"
+          },
+          "timestamp": "2026-03-24T13:22:47.847Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "exec_command",
+          "input": {
+            "cmd": "rg -n \"NETWORK_ISSUE|_recover_from_network_issue_popup|_try_click_confirm_button|处理网络异常弹窗后\" monitor.py page_selectors.py"
+          },
+          "timestamp": "2026-03-24T13:22:47.848Z"
+        },
+        {
+          "type": "assistant",
+          "text": "这个场景已经按你说的逻辑加好了。\n\n现在在“首次无法定位筛选项”时会这样处理：\n1. 先检测页面里是否有“网络出现问题/网络异常”提示\n2. 如果有，尝试点击“确认/确定”按钮\n3. 点击后等待页面恢复，再重试筛选\n4. 若仍失败，再走原来的“刷新目标页重试一次”兜底逻辑\n\n改动文件：\n- 弹窗关键词与按钮文案配置：  \n  [page_selectors.py](/home/yuxuan/Desktop/study/2th/LectureMonitor/page_selectors.py)\n- 首次筛选失败分支新增弹窗恢复逻辑：  \n  [monitor.py](/home/yuxuan/Desktop/study/2th/LectureMonitor/monitor.py#L174)\n\n语法检查已通过。  \n如果你后面发现提示文案不是“网络出现问题/网络异常”，把实际文案发我，我再帮你补进关键词列表。",
+          "timestamp": "2026-03-24T13:22:57.392Z"
+        }
+      ],
+      "total_additions": 126,
+      "total_deletions": 5,
+      "accepted_lines": 124,
+      "overriden_lines": 2
+    }
+  }
+}
