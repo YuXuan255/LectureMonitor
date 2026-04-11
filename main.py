@@ -171,7 +171,10 @@ def main() -> None:
 
         monitor = LectureMonitor(config)
         storage = ActivityStorage()
-        notifier = EmailNotifier(config.get("email"))
+        notifier = EmailNotifier(
+            config.get("email"),
+            main_user=config.get("main_user"),
+        )
 
         logging.info("脚本启动。")
         logging.info(

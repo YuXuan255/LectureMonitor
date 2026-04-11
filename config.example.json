@@ -25,5 +25,8 @@
       "another_email@example.com"
     ],
     "use_ssl": true
-  }
+  },
+  "main_user": [
+    "your_email@example.com"
+  ]
 }

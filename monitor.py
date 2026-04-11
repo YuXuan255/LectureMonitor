@@ -4,14 +4,7 @@ from pathlib import Path
 from typing import Any, Callable, Optional
 from urllib.parse import urljoin
 
-from playwright.sync_api import (
-    BrowserContext,
-    Locator,
-    Page,
-    Playwright,
-    TimeoutError as PlaywrightTimeoutError,
-    sync_playwright,
-)
+from playwright.sync_api import Locator, Page, TimeoutError as PlaywrightTimeoutError, sync_playwright
 
 from models import Activity
 import page_selectors as selectors
@@ -43,89 +36,106 @@ class LectureMonitor:
         self.login_recover_retry_wait_ms = int(timeout_config.get("login_recover_retry_wait_ms", 2000))
 
         self.profile_dir.mkdir(parents=True, exist_ok=True)
-        self._playwright_manager = None
-        self._playwright: Optional[Playwright] = None
-        self._context: Optional[BrowserContext] = None
-        self._page: Optional[Page] = None
 
     def run_once(
         self,
         allow_manual_login: bool = False,
         on_login_invalid: Optional[Callable[[str], None]] = None,
     ) -> list[Activity]:
-        """执行一次完整流程：进入页面、筛选、查询、解析结果。"""
-        page = self._ensure_browser()
-        logging.info("打开页面: %s", self.url)
-        page.goto(self.url, wait_until="domcontentloaded", timeout=self.page_load_ms)
-        self._wait_before_login_check(page)
+        """执行一次完整流程：每次新开浏览器上下文，结束后关闭。"""
+        try:
+            return self._run_once_with_mode(
+                headless_mode=self.headless,
+                allow_manual_login=allow_manual_login,
+                on_login_invalid=on_login_invalid,
+            )
+        except LoginRequiredError:
+            # 仅在“默认无头 + 允许手动恢复”时，临时切到有头模式处理本轮查询
+            if not self.headless or not allow_manual_login:
+                raise
 
-        self._ensure_login(
-            page,
-            allow_manual_login=allow_manual_login,
-            on_login_invalid=on_login_invalid,
-        )
-        self._apply_filters(
-            page,
-            allow_manual_login=allow_manual_login,
-            on_login_invalid=on_login_invalid,
-        )
-        self._click_query(page)
-
-        activities = self._parse_activities(page)
-        logging.info("本次解析到 %d 条活动", len(activities))
-        return activities
+            logging.warning("无头模式下检测到登录失效，将临时切换为有头模式进行登录恢复。")
+            input("请按回车打开临时浏览器窗口并完成登录恢复... ")
+            return self._run_once_with_mode(
+                headless_mode=False,
+                allow_manual_login=True,
+                # 无头分支已经触发过失效回调，这里避免重复触发邮件
+                on_login_invalid=None,
+                quick_manual_recover=True,
+            )
 
     def close(self) -> None:
-        """关闭长期复用的浏览器资源。"""
-        if self._context is not None:
+        """兼容接口：当前版本每轮自动关闭，无需额外释放。"""
+        return
+
+    def _run_once_with_mode(
+        self,
+        headless_mode: bool,
+        allow_manual_login: bool,
+        on_login_invalid: Optional[Callable[[str], None]] = None,
+        quick_manual_recover: bool = False,
+    ) -> list[Activity]:
+        """在指定浏览器模式下执行一轮查询。"""
+        with sync_playwright() as playwright:
+            context = playwright.chromium.launch_persistent_context(
+                user_data_dir=str(self.profile_dir),
+                headless=headless_mode,
+                slow_mo=self.slow_mo_ms,
+            )
             try:
-                self._context.close()
-            except Exception:
-                pass
-            self._context = None
-            self._page = None
+                page = context.pages[0] if context.pages else context.new_page()
+                logging.info("打开页面: %s", self.url)
+                page.goto(self.url, wait_until="domcontentloaded", timeout=self.page_load_ms)
+                self._wait_before_login_check(page)
 
-        if self._playwright_manager is not None:
-            try:
-                self._playwright_manager.stop()
-            except Exception:
-                pass
-            self._playwright_manager = None
-            self._playwright = None
+                self._ensure_login(
+                    page,
+                    allow_manual_login=allow_manual_login,
+                    on_login_invalid=on_login_invalid,
+                    current_headless=headless_mode,
+                    quick_manual_recover=quick_manual_recover,
+                )
+                self._apply_filters(
+                    page,
+                    allow_manual_login=allow_manual_login,
+                    on_login_invalid=on_login_invalid,
+                    current_headless=headless_mode,
+                )
+                self._click_query(page)
 
-    def _ensure_browser(self) -> Page:
-        """确保浏览器上下文已启动并复用同一页面。"""
-        if self._page is not None and not self._page.is_closed():
-            return self._page
-
-        # 兜底清理异常残留资源
-        self.close()
-
-        self._playwright_manager = sync_playwright()
-        self._playwright = self._playwright_manager.start()
-        self._context = self._playwright.chromium.launch_persistent_context(
-            user_data_dir=str(self.profile_dir),
-            headless=self.headless,
-            slow_mo=self.slow_mo_ms,
-        )
-
-        if self._context.pages:
-            self._page = self._context.pages[0]
-        else:
-            self._page = self._context.new_page()
-
-        return self._page
+                activities = self._parse_activities(page)
+                logging.info("本次解析到 %d 条活动", len(activities))
+                return activities
+            finally:
+                context.close()
 
     def _ensure_login(
         self,
         page: Page,
         allow_manual_login: bool,
         on_login_invalid: Optional[Callable[[str], None]] = None,
+        current_headless: bool = False,
+        quick_manual_recover: bool = False,
     ) -> None:
         """检测登录状态；失效时抛出登录异常或进入手动恢复流程。"""
         if self._has_search_filters(page):
             logging.info("检测到筛选区域，登录状态可用。")
             return
+
+        if quick_manual_recover:
+            logging.info("临时有头恢复模式：直接进入手动登录恢复流程。")
+            if not allow_manual_login:
+                raise LoginRequiredError("临时有头恢复模式下未允许手动登录。")
+            if current_headless:
+                raise LoginRequiredError("恢复模式参数异常：当前仍为无头模式。")
+
+            input("请在打开的浏览器中手动登录，然后回到终端按回车继续... ")
+            if self._recover_to_target_search_page(page):
+                logging.info("手动登录后已成功回到目标检索页。")
+                return
+
+            self._print_login_debug_tips()
+            raise LoginRequiredError("手动登录后仍未检测到筛选区域（已尝试自动跳回目标页）。")
 
         # 兼容前端异步渲染：首次未命中时再等一轮再判定
         logging.info("筛选区域首次未出现，等待页面继续渲染后重试。")
@@ -153,6 +163,9 @@ class LectureMonitor:
         if not allow_manual_login:
             raise LoginRequiredError(reason)
 
+        if current_headless:
+            raise LoginRequiredError("无头模式下登录失效，需要临时切换为有头模式恢复登录。")
+
         input("请在打开的浏览器中手动登录，然后回到终端按回车继续... ")
         if self._recover_to_target_search_page(page):
             logging.info("手动登录后已成功回到目标检索页。")
@@ -176,6 +189,7 @@ class LectureMonitor:
         page: Page,
         allow_manual_login: bool,
         on_login_invalid: Optional[Callable[[str], None]] = None,
+        current_headless: bool = False,
     ) -> None:
         """按规格设置四个筛选项，首次失败时自动刷新目标页再重试一次。"""
         failed_item = self._apply_filters_once(page)
@@ -187,6 +201,7 @@ class LectureMonitor:
             page,
             allow_manual_login=allow_manual_login,
             on_login_invalid=on_login_invalid,
+            current_headless=current_headless,
         )
         if handled_popup:
             failed_item = self._apply_filters_once(page)
@@ -206,6 +221,7 @@ class LectureMonitor:
             page,
             allow_manual_login=allow_manual_login,
             on_login_invalid=on_login_invalid,
+            current_headless=current_headless,
         )
 
         failed_item = self._apply_filters_once(page)
@@ -222,6 +238,7 @@ class LectureMonitor:
         page: Page,
         allow_manual_login: bool,
         on_login_invalid: Optional[Callable[[str], None]] = None,
+        current_headless: bool = False,
     ) -> bool:
         """检测并处理“网络出现问题”弹窗。"""
         has_network_issue = False
@@ -254,6 +271,7 @@ class LectureMonitor:
             page,
             allow_manual_login=allow_manual_login,
             on_login_invalid=on_login_invalid,
+            current_headless=current_headless,
         )
         return True
 
